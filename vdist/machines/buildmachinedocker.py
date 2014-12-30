@@ -40,7 +40,7 @@ class BuildMachineDocker(BuildMachine):
         lines = self.dockerclient.logs(container=self.container.get('Id'),
                                        stdout=True, stderr=True, stream=True)
         for line in lines:
-            print line
+            self.logger.info(line.strip())
 
     def shutdown(self):
         self.dockerclient.stop(container=self.container.get('Id'))
