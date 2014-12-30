@@ -17,9 +17,9 @@ class ApplicationConfig(object):
 
     def __str__(self):
         return 'app: %s, git_url: %s, build_deps: %s, runtime_deps: %s, ' \
-            'build_machine: %s, pipeline: %s' % \
+            'build_machine: %s, build_pipeline: %s' % \
             (self.app, self.git_url,
              ', '.join(self.build_deps),
              ', '.join(self.runtime_deps),
-             self.build_machine, self.pipeline
+             self.build_machine, self.build_pipeline
              )
