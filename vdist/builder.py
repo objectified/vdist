@@ -11,7 +11,8 @@ from vdist.template_mappings import mappings
 class Builder(object):
 
     def __init__(self, config):
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+        logging.basicConfig(format='%(asctime)s %(levelname)s '
+                            '%(name)s %(message)s',
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
