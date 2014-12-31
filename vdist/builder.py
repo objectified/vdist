@@ -29,7 +29,8 @@ class Builder(object):
             app=self.config.app,
             build_deps=self.config.build_deps,
             runtime_deps=self.config.runtime_deps,
-            git_url=self.config.git_url
+            git_url=self.config.git_url,
+            version=self.config.version
         )
 
     def _clean_build_dir(self):
