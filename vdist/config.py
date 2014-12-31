@@ -13,7 +13,9 @@ class ApplicationConfig(object):
                           'runtime_deps', 'build_machine']
         for attr in expected_attrs:
             if attr not in self.__dict__:
-                raise Exception('Config attribute missing: %s' % attr)
+                raise ValueError('Config attribute missing: %s' % attr)
+
+        return True
 
     def __str__(self):
         return 'app: %s, version: %s: git_url: %s, build_deps: %s, ' \
