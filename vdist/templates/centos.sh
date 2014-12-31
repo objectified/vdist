@@ -24,7 +24,7 @@ easy_install virtualenv
 # install build dependencies
 yum install -y {{build_deps|join(' ')}}
 
-cd /opt
+cd /build
 
 git clone {{git_url}}
 
@@ -38,4 +38,4 @@ pip install -r requirements.txt
 
 cd ..
 
-fpm -s dir -t rpm -n {{app}} {{app}}
+fpm -s dir -t rpm -n {{app}} -p /build -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{app}}
