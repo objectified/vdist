@@ -64,6 +64,8 @@ class Builder(object):
         self.logger.info('writing build script to: %s' % self.build_script_path)
         self._write_build_script(self._render_template(flavor))
 
-        self.logger.info('Launching build machine: %s' % flavor)
+        self.logger.info('Running build machine: %s' % flavor)
         build_machine.launch(build_dir=self.build_dir)
+
+        self.logger.info('Shutting down build machine: %s' % flavor)
         build_machine.shutdown()
