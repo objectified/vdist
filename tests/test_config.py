@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from vdist.config import ApplicationConfig
+from vdist.config import ApplicationConfig, ConfigError
 
 
 @pytest.fixture
@@ -20,5 +20,13 @@ def test_invalid_config(localpath):
     config = ApplicationConfig()
     config.load(localpath + '/invalidconfig.yml')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ConfigError):
+        config.validate()
+
+
+def test_config_notlist(localpath):
+    config = ApplicationConfig()
+    config.load(localpath + '/config_notlist.yml')
+
+    with pytest.raises(ConfigError):
         config.validate()

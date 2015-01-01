@@ -1,6 +1,10 @@
 import yaml
 
 
+class ConfigError(Exception):
+    pass
+
+
 class ApplicationConfig(object):
 
     def load(self, config_file):
@@ -13,7 +17,13 @@ class ApplicationConfig(object):
                           'runtime_deps', 'build_machine']
         for attr in expected_attrs:
             if attr not in self.__dict__:
-                raise ValueError('Config attribute missing: %s' % attr)
+                raise ConfigError('Config attribute missing: %s' % attr)
+
+        if type(self.build_deps) is not list:
+            raise ConfigError('build_deps should be a list')
+
+        if type(self.runtime_deps) is not list:
+            raise ConfigError('build_deps should be a list')
 
         return True
 
