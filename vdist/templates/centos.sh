@@ -38,4 +38,4 @@ pip install -r requirements.txt
 
 cd ..
 
-fpm -s dir -t rpm -n {{app}} -p /build -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{app}}
+fpm -s dir -t rpm -n {{app}} -p /build -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{app}}

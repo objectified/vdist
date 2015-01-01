@@ -30,7 +30,8 @@ class Builder(object):
             build_deps=self.config.build_deps,
             runtime_deps=self.config.runtime_deps,
             git_url=self.config.git_url,
-            version=self.config.version
+            version=self.config.version,
+            fpm_args=self.config.fpm_args
         )
 
     def _clean_build_dir(self):
