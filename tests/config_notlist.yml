@@ -1,0 +1,14 @@
+app: selmon
+version: 1.0
+git_url: https://github.com/objectified/selmon
+build_deps:
+    - libmysqlclient-dev
+runtime_deps:
+    libmysqlclient
+build_machine: 
+    driver: docker
+    flavor: centos:centos6
+build_pipeline:
+    smoke_tests:
+        shell: 
+            - python -m unittest tests/
