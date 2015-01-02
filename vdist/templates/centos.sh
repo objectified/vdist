@@ -2,18 +2,7 @@
 
 # install fpm
 yum check-update 
-yum install -y ruby-devel gcc curl libyaml-devel which tar rpm-build
-
-gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3
-
-curl -sSL get.rvm.io | bash -s stable
-source /etc/profile.d/rvm.sh
-
-rvm requirements
-rvm install 1.9.3
-rvm use 1.9.3 --default
-
-rvm rubygems current
+yum install -y ruby-devel gcc curl libyaml-devel which tar rpm-build rubygems
 
 gem install fpm
 
