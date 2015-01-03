@@ -5,7 +5,7 @@ from vdist.builder import Builder
 from vdist.config import ApplicationConfig
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-c', '--config',
                             help='path to config file', required=True)

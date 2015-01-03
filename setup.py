@@ -11,6 +11,11 @@ setup(
     packages=find_packages(),
     install_requires=['jinja2==2.7.3', 'docker-py==0.7.0', 'PyYAML==3.11'],
     tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'vdist = vdist.main:main',
+        ]
+    },
     classifiers=[
         'Development Status :: 1 - Alpha',
         'Environment :: Console',
