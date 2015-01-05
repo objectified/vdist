@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import re
+import threading
 
 from jinja2 import Environment, PackageLoader
 
@@ -49,7 +50,7 @@ class Builder(object):
 
     def __init__(self):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
-                            '%(name)s %(message)s',
+                            '%(threadName)s %(name)s %(message)s',
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
@@ -132,5 +133,13 @@ class Builder(object):
         self._clean_build_basedir()
         self._create_build_basedir()
 
+        threads = []
+
         for build in self.builds:
-            self.run_build(build)
+            t = threading.Thread(
+                name=build.name,
+                target=self.run_build,
+                args=(build,)
+            )
+            threads.append(t)
+            t.start()
