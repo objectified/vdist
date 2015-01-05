@@ -74,7 +74,8 @@ class Builder(object):
         )
 
     def _clean_build_basedir(self):
-        shutil.rmtree(self.build_basedir)
+        if os.path.exists(self.build_basedir):
+            shutil.rmtree(self.build_basedir)
 
     def _create_build_basedir(self):
         os.mkdir(self.build_basedir)
