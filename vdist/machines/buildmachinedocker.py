@@ -33,10 +33,10 @@ class BuildMachineDocker(BuildMachine):
         self.logger.info('Starting container: %s' % self.flavor)
         self.container = self.dockerclient.create_container(
             image=self.flavor,
-            command='/build/buildscript.sh')
+            command='/dist/buildscript.sh')
         self.dockerclient.start(
             container=self.container.get('Id'),
-            binds={build_dir: '/build'})
+            binds={build_dir: '/dist'})
         lines = self.dockerclient.logs(container=self.container.get('Id'),
                                        stdout=True, stderr=True, stream=True)
         for line in lines:

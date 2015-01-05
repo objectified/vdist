@@ -18,7 +18,7 @@ class Builder(object):
 
         self.config = config
 
-        self.build_dir = os.getcwd() + '/build'
+        self.build_dir = os.getcwd() + '/dist'
         self.build_script_path = self.build_dir + '/buildscript.sh'
 
     def _render_template(self, flavor):
