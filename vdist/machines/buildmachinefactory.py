@@ -8,8 +8,9 @@ class BuildMachineFactory(object):
     }
 
     @classmethod
-    def create_build_machine(cls, driver=None, flavor=None):
+    def create_build_machine(cls, driver=None, flavor=None, machine_logs=True):
         if driver not in BuildMachineFactory.supported_drivers:
             raise Exception('Driver not supported: %s' % driver)
         else:
-            return BuildMachineFactory.supported_drivers[driver](flavor)
+            return BuildMachineFactory.supported_drivers[driver](
+                flavor, machine_logs)
