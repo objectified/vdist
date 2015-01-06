@@ -16,6 +16,8 @@ git clone {{git_url}}
 
 cd {{app}}
 
+rm -rf .git
+
 virtualenv .
 
 source bin/activate
