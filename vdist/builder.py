@@ -2,12 +2,12 @@ import logging
 import os
 import shutil
 import re
+import json
 import threading
 
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 
 from vdist.machines.buildmachinefactory import BuildMachineFactory
-from vdist.template_mappings import mappings
 
 
 class Build(object):
@@ -48,24 +48,49 @@ class Build(object):
 
 class Builder(object):
 
-    def __init__(self, machine_logs=True):
+    def __init__(self, local_template_path='templates', machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
                             '%(threadName)s %(name)s %(message)s',
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
-        self.build_basedir = os.getcwd() + '/dist'
-
+        self.build_basedir = os.path.join(os.getcwd(), 'dist')
         self.builds = []
+        self.mappings = {}
 
         self.machine_logs = machine_logs
+        self.local_template_path = local_template_path
 
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
 
+    def _load_mappings(self):
+        internal_settings = os.path.join(
+            os.path.dirname(__file__),
+            'templates', 'internal_mappings.json')
+
+        with open(internal_settings) as f:
+            self.mappings.update(json.loads(f.read()))
+
+        local_template_mappings = os.path.join(self.local_template_path,
+                                               'mappings.json')
+        if os.path.isfile(local_template_mappings):
+            with open(local_template_mappings) as f:
+                self.mappings.update(json.loads(f.read()))
+
     def _render_template(self, build):
-        env = Environment(loader=PackageLoader('vdist', 'templates'))
-        template = env.get_template(mappings[build.build_machine['flavor']])
+        flavor = build.build_machine['flavor']
+        template = None
+
+        internal_template_dir = os.path.join(
+            os.path.dirname(__file__), 'templates')
+        local_template_dir = os.path.abspath(self.local_template_path)
+
+        env = Environment(loader=FileSystemLoader(
+            [internal_template_dir, local_template_dir]))
+        if flavor in self.mappings:
+            template_name = self.mappings[flavor]
+            template = env.get_template(template_name)
 
         return template.render(
             app=build.app,
@@ -133,6 +158,7 @@ class Builder(object):
         build_machine.shutdown()
 
     def build(self):
+        self._load_mappings()
         self._clean_build_basedir()
         self._create_build_basedir()
 
