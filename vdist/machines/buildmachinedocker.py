@@ -8,12 +8,14 @@ from vdist.machines.buildmachine import BuildMachine
 
 class BuildMachineDocker(BuildMachine):
 
-    def __init__(self, flavor):
+    def __init__(self, flavor, machine_logs=True):
         self.logger = logging.getLogger('BuildMachineDocker')
 
         BuildMachine.__init__(self, flavor)
         self.dockerclient = docker.Client(**kwargs_from_env())
         self.container = None
+
+        self.machine_logs = machine_logs
 
     def _image_exists(self, image):
         for img in self.dockerclient.images():
@@ -40,7 +42,8 @@ class BuildMachineDocker(BuildMachine):
         lines = self.dockerclient.logs(container=self.container.get('Id'),
                                        stdout=True, stderr=True, stream=True)
         for line in lines:
-            self.logger.info(line.strip())
+            if self.machine_logs:
+                self.logger.info(line.strip())
 
     def shutdown(self):
         self.dockerclient.stop(container=self.container.get('Id'))

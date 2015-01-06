@@ -48,7 +48,7 @@ class Build(object):
 
 class Builder(object):
 
-    def __init__(self):
+    def __init__(self, machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
                             '%(threadName)s %(name)s %(message)s',
                             level=logging.INFO)
@@ -57,6 +57,8 @@ class Builder(object):
         self.build_basedir = os.getcwd() + '/dist'
 
         self.builds = []
+
+        self.machine_logs = machine_logs
 
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
@@ -114,7 +116,8 @@ class Builder(object):
                          (driver, flavor))
         build_machine = BuildMachineFactory.create_build_machine(
             driver=driver,
-            flavor=flavor
+            flavor=flavor,
+            machine_logs=self.machine_logs
         )
 
         self.logger.info('writing build script to: %s' % build_dir)
