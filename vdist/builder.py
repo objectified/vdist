@@ -50,7 +50,7 @@ class Builder(object):
 
     def __init__(self, local_template_path='templates', machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
-                            '%(threadName)s %(name)s %(message)s',
+                            '[%(threadName)s] %(name)s %(message)s',
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
