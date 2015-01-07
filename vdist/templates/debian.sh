@@ -1,9 +1,10 @@
 #!/bin/bash -x
+PYTHON_VERSION="2.7.9"
 
 # install fpm
 apt-get update
 apt-get dist-upgrade -y
-apt-get install ruby-dev build-essential git python-virtualenv -y
+apt-get install ruby-dev build-essential git python-virtualenv curl -y
 
 gem install fpm
 
@@ -12,7 +13,19 @@ gem install fpm
 apt-get install -y {{build_deps|join(' ')}}
 {% endif %}
 
-cd /dist
+# install python prerequisites 
+apt-get build-dep python -y
+apt-get install libssl-dev -y
+
+# compile and install python
+cd /var/tmp
+curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+tar xzvf Python-$PYTHON_VERSION.tgz
+cd Python-$PYTHON_VERSION
+./configure --prefix=/opt/vdist-python/bin/python
+make && make install
+
+cd /opt
 
 git clone {{git_url}}
 
@@ -20,7 +33,7 @@ cd {{app}}
 
 rm -rf .git
 
-virtualenv .
+virtualenv -p /opt/vdist-python/bin/python .
 
 source bin/activate
 
@@ -34,4 +47,4 @@ fi
 
 cd ..
 
-fpm -s dir -t deb -n {{app}} -p /dist -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{app}}
+fpm -s dir -t deb -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt 
