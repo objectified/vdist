@@ -8,7 +8,9 @@ apt-get install ruby-dev build-essential git python-virtualenv -y
 gem install fpm
 
 # install build dependencies
+{% if build_deps %}
 apt-get install -y {{build_deps|join(' ')}}
+{% endif %}
 
 cd /dist
 

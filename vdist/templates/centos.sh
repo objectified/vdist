@@ -11,7 +11,9 @@ yum install -y git python-setuptools
 easy_install virtualenv
 
 # install build dependencies
+{% if build_deps %}
 yum install -y {{build_deps|join(' ')}}
+{% endif %}
 
 cd /dist
 
