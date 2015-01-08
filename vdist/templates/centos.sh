@@ -1,6 +1,9 @@
 #!/bin/bash -x
 PYTHON_VERSION="2.7.9"
 
+# fail on error
+set -e
+
 # install general prerequisites
 yum check-update 
 yum install -y ruby-devel curl libyaml-devel which tar rpm-build rubygems git python-setuptools zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
