@@ -22,7 +22,7 @@ cd /var/tmp
 curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
 tar xzvf Python-$PYTHON_VERSION.tgz
 cd Python-$PYTHON_VERSION
-./configure --prefix=/opt/vdist-python/bin/python
+./configure --prefix=/opt/vdist-python
 make && make install
 
 cd /opt
