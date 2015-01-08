@@ -3,8 +3,7 @@ PYTHON_VERSION="2.7.9"
 
 # install fpm
 apt-get update
-apt-get dist-upgrade -y
-apt-get install ruby-dev build-essential git python-virtualenv curl -y
+apt-get install ruby-dev build-essential git python-virtualenv curl libssl-dev libsqlite3-dev libgdbm-dev libreadline-dev libbz2-dev libncurses5-dev tk-dev -y
 
 gem install fpm
 
