@@ -1,21 +1,31 @@
 #!/bin/bash -x
+PYTHON_VERSION="2.7.9"
 
-# install fpm
+# install general prerequisites
 yum check-update 
-yum install -y ruby-devel gcc curl libyaml-devel which tar rpm-build rubygems
+yum install -y ruby-devel curl libyaml-devel which tar rpm-build rubygems git python-setuptools zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
 
-gem install fpm
+yum groupinstall -y "Development Tools"
 
-# install prerequisites
-yum install -y git python-setuptools
-easy_install virtualenv
-
-# install build dependencies
+# install build dependencies needed for this specific build
 {% if build_deps %}
 yum install -y {{build_deps|join(' ')}}
 {% endif %}
 
-cd /dist
+gem install fpm
+
+# install prerequisites
+easy_install virtualenv
+
+# compile and install python
+cd /var/tmp
+curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+tar xzvf Python-$PYTHON_VERSION.tgz
+cd Python-$PYTHON_VERSION
+./configure --prefix=/opt/vdist-python
+make && make install
+
+cd /opt
 
 git clone {{git_url}}
 
@@ -23,7 +33,7 @@ cd {{app}}
 
 rm -rf .git
 
-virtualenv .
+virtualenv -p /opt/vdist-python/bin/python .
 
 source bin/activate
 
@@ -37,4 +47,4 @@ fi
 
 cd ..
 
-fpm -s dir -t rpm -n {{app}} -p /dist -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{app}}
+fpm -s dir -t rpm -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt
