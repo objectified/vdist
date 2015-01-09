@@ -29,21 +29,15 @@ class Build(object):
         else:
             self.runtime_deps = runtime_deps
 
-        if 'driver' not in build_machine or 'flavor' not in build_machine:
-            raise ValueError("build_machine should have "
-                             "'driver' and 'flavor' keys")
-
         self.build_machine = build_machine
         self.fpm_args = fpm_args
 
     def __str__(self):
         return 'name: %s, app: %s, version: %s, git_url: %s, build_deps: %s' \
-            ' runtime_deps: %s, build_machine driver: %s' \
-            'build_machine flavor: %s, fpm_args: %s' % \
+            ' runtime_deps: %s, build_machine: %s, fpm_args: %s' \
             (self.name, self.app, self.version, self.git_url,
              ', '.join(self.build_deps), ', '.join(self.runtime_deps),
-             self.build_machine['driver'], self.build_machine['flavor'],
-             self.fpm_args)
+             self.build_machine, self.fpm_args)
 
 
 class Builder(object):
@@ -79,7 +73,6 @@ class Builder(object):
                 self.mappings.update(json.loads(f.read()))
 
     def _render_template(self, build):
-        flavor = build.build_machine['flavor']
         template = None
 
         internal_template_dir = os.path.join(
@@ -88,8 +81,8 @@ class Builder(object):
 
         env = Environment(loader=FileSystemLoader(
             [internal_template_dir, local_template_dir]))
-        if flavor in self.mappings:
-            template_name = self.mappings[flavor]
+        if build.build_machine in self.mappings:
+            template_name = self.mappings[build.build_machine]['template']
             template = env.get_template(template_name)
 
         return template.render(
@@ -118,7 +111,7 @@ class Builder(object):
             '[^A-Za-z0-9\.\-]',
             '_',
             '-'.join(
-                [build.app, build.version, build.build_machine['flavor']]
+                [build.app, build.version, build.build_machine]
             )
         )
 
@@ -132,13 +125,14 @@ class Builder(object):
         return build_dir
 
     def run_build(self, build):
-        driver = build.build_machine['driver']
-        flavor = build.build_machine['flavor']
+        driver = 'docker' # only supported driver for now
+        flavor = self.mappings[build.build_machine]['flavor']
 
         build_dir = self._create_build_dir(build)
 
-        self.logger.info('creating build machine with driver: %s, flavor: %s' %
-                         (driver, flavor))
+        self.logger.info('creating build machine "%s" with driver: %s, '
+                         'flavor: %s' %
+                         (build.build_machine, driver, flavor))
         build_machine = BuildMachineFactory.create_build_machine(
             driver=driver,
             flavor=flavor,
