@@ -13,8 +13,10 @@ $ pip install vdist
 
 ## How to use
 Inside your project, there are a few basic prerequisites for vdist to work.
+
 1. Create a requirements.txt ('pip freeze > requirements.txt' inside a virtualenv should give you a good start)
 2. Create a small Python file that actually uses the vdist module
+
 Let's say we create a Python file called package.py, which would contain the following code:
 ```
 from vdist.builder import Builder
