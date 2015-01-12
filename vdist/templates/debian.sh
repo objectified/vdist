@@ -50,3 +50,5 @@ fi
 cd ..
 
 fpm -s dir -t deb -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt 
+
+chown -R {{localuid}}:{{localgid}} /opt

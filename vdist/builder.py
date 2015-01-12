@@ -97,7 +97,9 @@ class Builder(object):
             runtime_deps=build.runtime_deps,
             git_url=build.git_url,
             version=build.version,
-            fpm_args=build.fpm_args
+            fpm_args=build.fpm_args,
+            local_uid=os.getuid(),
+            local_gid=os.getgid()
         )
 
     def _clean_build_basedir(self):
