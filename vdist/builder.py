@@ -77,6 +77,7 @@ class Builder(object):
 
         internal_template_dir = os.path.join(
             os.path.dirname(__file__), 'templates')
+
         local_template_dir = os.path.abspath(self.local_template_path)
 
         env = Environment(loader=FileSystemLoader(
@@ -84,6 +85,8 @@ class Builder(object):
         if build.build_machine in self.mappings:
             template_name = self.mappings[build.build_machine]['template']
             template = env.get_template(template_name)
+        else:
+            raise TemplateNotFoundException()
 
         return template.render(
             app=build.app,
@@ -166,3 +169,7 @@ class Builder(object):
             )
             threads.append(t)
             t.start()
+
+
+class TemplateNotFoundException(Exception):
+    pass
