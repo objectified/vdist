@@ -115,7 +115,7 @@ class Builder(object):
             )
         )
 
-        build_dir = self.build_basedir + '/' + subdir_name
+        build_dir = os.path.join(self.build_basedir, subdir_name)
 
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
@@ -141,7 +141,7 @@ class Builder(object):
 
         self.logger.info('writing build script to: %s' % build_dir)
         self._write_build_script(
-            build_dir + '/buildscript.sh',
+            os.path.join(build_dir, 'buildscript.sh'),
             self._render_template(build)
         )
 
