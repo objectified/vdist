@@ -110,7 +110,7 @@ class Builder(object):
     def _write_build_script(self, path, script):
         with open(path, 'w+') as f:
             f.write(script)
-        os.chmod(path, 0777)
+        os.chmod(path, 0o777)
 
     def _create_build_dir(self, build):
         subdir_name = re.sub(
@@ -131,7 +131,8 @@ class Builder(object):
         return build_dir
 
     def run_build(self, build):
-        driver = 'docker' # only supported driver for now
+        # only supported driver for now
+        driver = 'docker'
         flavor = self.mappings[build.build_machine]['flavor']
 
         build_dir = self._create_build_dir(build)
