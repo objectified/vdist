@@ -175,7 +175,12 @@ class Builder(object):
             )
             threads.append(t)
             t.start()
+        else:
+            raise NoBuildsFoundException()
 
 
 class TemplateNotFoundException(Exception):
+    pass
+
+class NoBuildsFoundException(Exception):
     pass
