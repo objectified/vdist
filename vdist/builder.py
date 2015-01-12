@@ -71,6 +71,9 @@ class Builder(object):
         if os.path.isfile(local_template_mappings):
             with open(local_template_mappings) as f:
                 self.mappings.update(json.loads(f.read()))
+        else:
+            self.logger.info('No local mappings found in %s' %
+                    local_template_mappings)
 
     def _render_template(self, build):
         template = None
