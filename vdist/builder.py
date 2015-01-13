@@ -19,14 +19,12 @@ class Build(object):
         self.version = version
         self.git_url = git_url
 
-        if not build_deps:
-            self.build_deps = []
-        else:
+        self.build_deps = []
+        if build_deps:
             self.build_deps = build_deps
 
-        if not runtime_deps:
-            self.runtime_deps = []
-        else:
+        self.runtime_deps = []
+        if runtime_deps:
             self.runtime_deps = runtime_deps
 
         self.build_machine = build_machine
@@ -73,7 +71,7 @@ class Builder(object):
                 self.mappings.update(json.loads(f.read()))
         else:
             self.logger.info('No local mappings found in %s' %
-                    local_template_mappings)
+                             local_template_mappings)
 
     def _render_template(self, build):
         template = None
@@ -181,6 +179,7 @@ class Builder(object):
 
 class TemplateNotFoundException(Exception):
     pass
+
 
 class NoBuildsFoundException(Exception):
     pass
