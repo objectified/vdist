@@ -71,7 +71,7 @@ class Builder(object):
                 self.mappings.update(json.loads(f.read()))
         else:
             self.logger.info('No local mappings found in %s' %
-                    local_template_mappings)
+                             local_template_mappings)
 
     def _render_template(self, build):
         template = None
@@ -179,6 +179,7 @@ class Builder(object):
 
 class TemplateNotFoundException(Exception):
     pass
+
 
 class NoBuildsFoundException(Exception):
     pass
