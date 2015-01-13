@@ -6,10 +6,13 @@ What vdist does is this: you create a Python file with some information about yo
 
 By default, vdist will also compile and install a fresh Python interpreter for you, to be used by your application. This interpreter is used to create the aforementioned virtualenv, and will also be used when you deploy the resulting OS package.
 
+Note that vdist is not meant to build Docker images for your project, it merely creates (nearly) self contained OS packages of your application, which you can then use to deploy on the target platform you told vdist to build for.
 
 ## How to install 
 Installing should be as easy as:
+```
 $ pip install vdist
+```
 
 ## How to use
 Inside your project, there are a few basic prerequisites for vdist to work.
@@ -75,3 +78,6 @@ It could well be that in your specific case, you need different steps to be take
 ```
 
 In case it's not directly obvious, this mappings file defines 2 machines: web-machine and database-machine. Each machine has 2 properties, called "flavor" and "template". Flavor indicates the name of the Docker image, which will be pulled from the Docker repo by vdist (since only Docker is supported at the moment, we don't need to be explicit about it). The "template" key indicates what script to load on the build machine to actually execute the build process. You can take a look at vdist's own templates to get an idea of how they work, and how to create your own. They really are simple shell scripts, that are used as templates so that specific build information can be injected at runtime. These shell scripts can be put in the templates directory alongside your mappings file. All parameters that are given by you when calling add_build() are injected into the template. 
+
+## How to contribute
+I would certainly appreciate your help! Issues, feature requests and pull requests are more than welcome. I'm guessing I would need much more effort creating more deployment templates, but any help is appreciated!
