@@ -163,6 +163,9 @@ class Builder(object):
         self._clean_build_basedir()
         self._create_build_basedir()
 
+        if len(self.builds) < 1:
+            raise NoBuildsFoundException()
+
         threads = []
 
         for build in self.builds:
@@ -173,8 +176,6 @@ class Builder(object):
             )
             threads.append(t)
             t.start()
-        else:
-            raise NoBuildsFoundException()
 
 
 class TemplateNotFoundException(Exception):
