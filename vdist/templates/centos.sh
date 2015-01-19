@@ -15,7 +15,11 @@ yum groupinstall -y "Development Tools"
 yum install -y {{build_deps|join(' ')}}
 {% endif %}
 
-gem install fpm
+# only install when needed, to save time with 
+# pre-provisioned containers
+if [ ! -f /usr/bin/fpm ]; then
+    gem install fpm
+fi
 
 # install prerequisites
 easy_install virtualenv

@@ -8,7 +8,11 @@ set -e
 apt-get update
 apt-get install ruby-dev build-essential git python-virtualenv curl libssl-dev libsqlite3-dev libgdbm-dev libreadline-dev libbz2-dev libncurses5-dev tk-dev -y
 
-gem install fpm
+# only install when needed, to save time with 
+# pre-provisioned containers
+if [ ! -f /usr/bin/fpm ]; then
+    gem install fpm
+fi
 
 # install build dependencies
 {% if build_deps %}
