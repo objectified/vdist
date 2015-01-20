@@ -6,16 +6,16 @@ from docker.utils import kwargs_from_env
 from vdist.machines.buildmachine import BuildMachine
 
 
-class BuildMachineDocker(BuildMachine):
+class BuildMachineDocker(object):
 
-    def __init__(self, flavor, machine_logs=True):
+    def __init__(self, machine_logs=True, image=None):
         self.logger = logging.getLogger('BuildMachineDocker')
 
-        BuildMachine.__init__(self, flavor)
         self.dockerclient = docker.Client(**kwargs_from_env())
         self.container = None
 
         self.machine_logs = machine_logs
+        self.image = image
 
     def _image_exists(self, image):
         for img in self.dockerclient.images():
@@ -27,14 +27,14 @@ class BuildMachineDocker(BuildMachine):
         self.dockerclient.pull(image)
 
     def launch(self, build_dir):
-        if not self._image_exists(self.flavor):
+        if not self._image_exists(self.image):
             self.logger.info(
-                'Image does not exist: %s, pulling from repo..' % self.flavor)
-            self._pull_image(self.flavor)
+                'Image does not exist: %s, pulling from repo..' % self.image)
+            self._pull_image(self.image)
 
-        self.logger.info('Starting container: %s' % self.flavor)
+        self.logger.info('Starting container: %s' % self.image)
         self.container = self.dockerclient.create_container(
-            image=self.flavor,
+            image=self.image,
             command='/opt/buildscript.sh')
         self.dockerclient.start(
             container=self.container.get('Id'),
