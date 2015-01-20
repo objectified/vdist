@@ -9,7 +9,7 @@ setup(
     author_email='objectified@gmail.com',
     url='https://github.com/objectified/vdist',
     packages=find_packages(),
-    install_requires=['jinja2==2.7.3', 'docker-py==0.7.0'],
+    install_requires=['jinja2==2.7.3', 'docker-py==0.7.1'],
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 1 - Alpha',
