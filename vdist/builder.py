@@ -25,7 +25,7 @@ class BuildMachine(object):
 
         self.validate()
 
-        if hasattr(self, self.insecure_registry) and \
+        if hasattr(self, 'insecure_registry') and \
                 self.insecure_registry == 'false':
             self.insecure_registry = False
 
