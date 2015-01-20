@@ -35,6 +35,9 @@ class BuildMachine(object):
                 raise AttributeError(
                     'build machine misses attribute: %s' % attr)
 
+    def __str__(self):
+        return str(self.__dict__)
+
 
 class Build(object):
 
@@ -57,11 +60,7 @@ class Build(object):
         self.fpm_args = fpm_args
 
     def __str__(self):
-        return 'name: %s, app: %s, version: %s, git_url: %s, build_deps: %s' \
-            ' runtime_deps: %s, build_machine_id: %s, fpm_args: %s' \
-            (self.name, self.app, self.version, self.git_url,
-             ', '.join(self.build_deps), ', '.join(self.runtime_deps),
-             self.build_machine_id, self.fpm_args)
+        return str(self.__dict__)
 
 
 class Builder(object):
