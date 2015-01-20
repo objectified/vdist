@@ -27,30 +27,32 @@ from vdist.builder import Builder
 builder = Builder()
 
 builder.add_build(
-    name='wand :: centos6',
-    app='wand',
+    name='SciPyCentral builder :: centos6',
+    app='SciPyCentral',
     version='1.0',
-    git_url='https://github.com/dahlia/wand',
+    git_url='https://github.com/scipy/SciPyCentral',
+    build_machine_id='centos6'
     build_deps=[],
     runtime_deps=['ImageMagick-devel'],
-    build_machine='centos:centos6',
-    fpm_args='--license Wand'
+    build_machine_id='centos6',
+    fpm_args='--license ScipyCentral'
 )
 
 builder.add_build(
-    name='wand :: ubuntu trusty',
-    app='wand',
+    name='SciPyCentral builder :: ubuntu trusty',
+    app='SciPyCentral',
     version='1.0',
-    git_url='https://github.com/dahlia/wand',
+    git_url='https://github.com/scipy/SciPyCentral',
+    build_machine_id='ubuntu-trusty'
     build_deps=[],
-    runtime_deps=['libmagickwand-dev'],
-    build_machine='ubuntu:trusty',
-    fpm_args='--license Wand'
+    runtime_deps=['libimagemagick-dev'],
+    build_machine_id='ubuntu-trusty',
+    fpm_args='--license ScipyCentral'
 )
 
 builder.build()
 ```
-If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for of a project called "Wand". Here's an explanation of the keyword arguments given to add_build():
+If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "ScipyCentral" (some Django application I found on Github). Here's an explanation of the keyword arguments given to add_build():
 
 - name :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs
 - app :: the name of the application to build; this should also equal the project name in Git, and is used as the prefix for the filename of the resulting package
@@ -58,26 +60,26 @@ If all goes well, running this file as a Python program will build two OS packag
 - git_url :: the URL that vdist will git clone the project from
 - build_deps :: a list of build time dependencies; these are the names of the OS packages that need to be present on the build machine before setting up and building the project
 - runtime_deps :: a list of run time dependencies; these names are given to the resulting OS package as dependencies, so that they act as prerequisites when installing the final OS package
-- build_machine :: the name of the Docker image to set up the build machine for this specific build 
+- build_machine_id :: the id of the Docker image to set up the build machine for this specific build; this id should be a reflection of what gets put in the build_machines.json file explained later
 - fpm_args :: any extra arguments that are given to FPM (https://github.com/jordansissel/fpm) when the actual package is being built 
 
 ## How to customize
-It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create mappings and templates for custom build machines. First, create a directory called "templates" under your current working directory. In this directory, you place a script called "mappings.json". The mappings.json file might look like this:
+It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create mappings and templates for custom build machines. First, create a directory called "templates" under your current working directory. In this directory, you place a script called "build_machines.json". The build_machines.json file might look like this:
 
 ```
 {
     "web-machine": {
-        flavor: "yourcompany/web:latest",
-        template: "web_template.sh"  
+        "docker_image": "yourcompany/web:latest",
+        "script": "web_template.sh"  
     },
     "database-machine": {
-        flavor: "yourcompany/database:latest",
-        template: "database_template.sh"  
+        "docker_image": "yourcompany/database:latest",
+        "script": "database_template.sh"  
     }
 }
 ```
 
-In case it's not directly obvious, this mappings file defines 2 machines: web-machine and database-machine. Each machine has 2 properties, called "flavor" and "template". Flavor indicates the name of the Docker image, which will be pulled from the Docker repo by vdist (since only Docker is supported at the moment, we don't need to be explicit about it). The "template" key indicates what script to load on the build machine to actually execute the build process. You can take a look at vdist's own templates to get an idea of how they work, and how to create your own. They really are simple shell scripts, that are used as templates so that specific build information can be injected at runtime. These shell scripts can be put in the templates directory alongside your mappings file. All parameters that are given by you when calling add_build() are injected into the template. 
+In case it's not directly obvious, this configuration file defines 2 machines: web-machine and database-machine. Each machine has 2 properties, called "docker_image" and "script". The "docker_image" key indicates the name of the Docker image which will be pulled from the Docker repo by vdist. The "script" key indicates what script to load on the build machine to actually execute the build process. These scripts are treated as templates, and the build information you provide to vdist will be injected into these templates. You can take a look at vdist's own templates to get an idea of how they work, and how to create your own. They really are simple shell scripts that are treated as templates when a build executes. Custom shell scripts can be put in the templates directory alongside your build_machines.json file. All parameters that are given by you when calling add_build() are injected into the template. 
 
 ## How to contribute
 I would certainly appreciate your help! Issues, feature requests and pull requests are more than welcome. I'm guessing I would need much more effort creating more deployment templates, but any help is appreciated!
