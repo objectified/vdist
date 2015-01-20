@@ -13,12 +13,24 @@ from vdist.machines.buildmachinedocker import BuildMachineDocker
 class BuildMachine(object):
 
     def __init__(self, **kwargs):
+        self.required_attrs = ['machine_id', 'docker_image', 'script']
+        self.optional_attrs = ['insecure_registry']
+
+        for arg in kwargs:
+            if arg not in self.required_attrs and \
+                    arg not in self.optional_attrs:
+                raise AttributeError('attribute not allowed: %s' % arg)
+
         self.__dict__.update(kwargs)
 
-    def validate(self):
-        required_attrs = ['machine_id', 'docker_image', 'script']
+        self.validate()
 
-        for attr in required_attrs:
+        if hasattr(self, self.insecure_registry) and \
+                self.insecure_registry == 'false':
+            self.insecure_registry = False
+
+    def validate(self):
+        for attr in self.required_attrs:
             if not hasattr(self, attr):
                 raise AttributeError(
                     'build machine misses attribute: %s' % attr)
@@ -104,9 +116,9 @@ class Builder(object):
         env = Environment(loader=FileSystemLoader(
             [internal_template_dir, local_template_dir]))
 
-        if not build.build_machine_id in self.build_machines:
+        if build.build_machine_id not in self.build_machines:
             raise BuildMachineNotFoundException(
-                    'machine not found: %s' % build.build_machine_id)
+                'machine not found: %s' % build.build_machine_id)
 
         machine = self.build_machines[build.build_machine_id]
         template_name = machine.script
@@ -158,8 +170,8 @@ class Builder(object):
 
         build_dir = self._create_build_dir(build)
 
-        self.logger.info('starting docker container from image: %s' %
-                machine.docker_image)
+        self.logger.info('launching docker image: %s' % machine.docker_image)
+
         build_machine = BuildMachineDocker(
             machine_logs=self.machine_logs,
             image=machine.docker_image
