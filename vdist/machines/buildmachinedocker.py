@@ -3,8 +3,6 @@ import logging
 import docker
 from docker.utils import kwargs_from_env
 
-from vdist.machines.buildmachine import BuildMachine
-
 
 class BuildMachineDocker(object):
 
