@@ -7,13 +7,27 @@ import threading
 
 from jinja2 import Environment, FileSystemLoader
 
-from vdist.machines.buildmachinefactory import BuildMachineFactory
+from vdist.machines.buildmachinedocker import BuildMachineDocker
+
+
+class BuildMachine(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def validate(self):
+        required_attrs = ['machine_id', 'docker_image', 'script']
+
+        for attr in required_attrs:
+            if not hasattr(self, attr):
+                raise AttributeError(
+                    'build machine misses attribute: %s' % attr)
 
 
 class Build(object):
 
     def __init__(self, name, app, version, git_url, build_deps=None,
-                 runtime_deps=None, build_machine=None, fpm_args=''):
+                 runtime_deps=None, build_machine_id=None, fpm_args=''):
         self.name = name
         self.app = app
         self.version = version
@@ -27,15 +41,15 @@ class Build(object):
         if runtime_deps:
             self.runtime_deps = runtime_deps
 
-        self.build_machine = build_machine
+        self.build_machine_id = build_machine_id
         self.fpm_args = fpm_args
 
     def __str__(self):
         return 'name: %s, app: %s, version: %s, git_url: %s, build_deps: %s' \
-            ' runtime_deps: %s, build_machine: %s, fpm_args: %s' \
+            ' runtime_deps: %s, build_machine_id: %s, fpm_args: %s' \
             (self.name, self.app, self.version, self.git_url,
              ', '.join(self.build_deps), ', '.join(self.runtime_deps),
-             self.build_machine, self.fpm_args)
+             self.build_machine_id, self.fpm_args)
 
 
 class Builder(object):
@@ -47,8 +61,8 @@ class Builder(object):
         self.logger = logging.getLogger('Builder')
 
         self.build_basedir = os.path.join(os.getcwd(), 'dist')
+        self.build_machines = {}
         self.builds = []
-        self.mappings = {}
 
         self.machine_logs = machine_logs
         self.local_template_path = local_template_path
@@ -56,22 +70,28 @@ class Builder(object):
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
 
+    def _add_build_machines_from_file(self, config_file):
+        with open(config_file) as f:
+            machines = json.loads(f.read())
+
+            for machine_id in machines:
+                machine = BuildMachine(
+                    machine_id=machine_id,
+                    docker_image=machines[machine_id]['docker_image'],
+                    script=machines[machine_id]['script']
+                )
+                self.build_machines[machine_id] = machine
+
     def _load_mappings(self):
-        internal_settings = os.path.join(
+        internal_build_machines = os.path.join(
             os.path.dirname(__file__),
-            'templates', 'internal_mappings.json')
+            'templates', 'internal_build_machines.json')
+        self._add_build_machines_from_file(internal_build_machines)
 
-        with open(internal_settings) as f:
-            self.mappings.update(json.loads(f.read()))
-
-        local_template_mappings = os.path.join(self.local_template_path,
-                                               'mappings.json')
-        if os.path.isfile(local_template_mappings):
-            with open(local_template_mappings) as f:
-                self.mappings.update(json.loads(f.read()))
-        else:
-            self.logger.info('No local mappings found in %s' %
-                             local_template_mappings)
+        local_build_machines = os.path.join(
+            self.local_template_path, 'build_machines.json')
+        if os.path.isfile(local_build_machines):
+            self._add_build_machines_from_file(local_template_mappings)
 
     def _render_template(self, build):
         template = None
@@ -83,11 +103,14 @@ class Builder(object):
 
         env = Environment(loader=FileSystemLoader(
             [internal_template_dir, local_template_dir]))
-        if build.build_machine in self.mappings:
-            template_name = self.mappings[build.build_machine]['template']
-            template = env.get_template(template_name)
-        else:
-            raise TemplateNotFoundException()
+
+        if not build.build_machine_id in self.build_machines:
+            raise BuildMachineNotFoundException(
+                    'machine not found: %s' % build.build_machine_id)
+
+        machine = self.build_machines[build.build_machine_id]
+        template_name = machine.script
+        template = env.get_template(template_name)
 
         return template.render(
             app=build.app,
@@ -117,7 +140,7 @@ class Builder(object):
             '[^A-Za-z0-9\.\-]',
             '_',
             '-'.join(
-                [build.app, build.version, build.build_machine]
+                [build.app, build.version, build.build_machine_id]
             )
         )
 
@@ -131,19 +154,15 @@ class Builder(object):
         return build_dir
 
     def run_build(self, build):
-        # only supported driver for now
-        driver = 'docker'
-        flavor = self.mappings[build.build_machine]['flavor']
+        machine = self.build_machines[build.build_machine_id]
 
         build_dir = self._create_build_dir(build)
 
-        self.logger.info('creating build machine "%s" with driver: %s, '
-                         'flavor: %s' %
-                         (build.build_machine, driver, flavor))
-        build_machine = BuildMachineFactory.create_build_machine(
-            driver=driver,
-            flavor=flavor,
-            machine_logs=self.machine_logs
+        self.logger.info('starting docker container from image: %s' %
+                machine.docker_image)
+        build_machine = BuildMachineDocker(
+            machine_logs=self.machine_logs,
+            image=machine.docker_image
         )
 
         self.logger.info('writing build script to: %s' % build_dir)
@@ -152,10 +171,10 @@ class Builder(object):
             self._render_template(build)
         )
 
-        self.logger.info('Running build machine: %s' % flavor)
+        self.logger.info('Running build machine for: %s' % build.name)
         build_machine.launch(build_dir=build_dir)
 
-        self.logger.info('Shutting down build machine: %s' % flavor)
+        self.logger.info('Shutting down build machine: %s' % build.name)
         build_machine.shutdown()
 
     def build(self):
@@ -176,6 +195,10 @@ class Builder(object):
             )
             threads.append(t)
             t.start()
+
+
+class BuildMachineNotFoundException(Exception):
+    pass
 
 
 class TemplateNotFoundException(Exception):

@@ -1,0 +1,14 @@
+{
+    "centos6": {
+        "docker_image": "centos:centos6",
+        "script": "centos.sh"
+    },
+    "ubuntu-trusty": {
+        "docker_image": "ubuntu:trusty",
+        "script": "debian.sh"
+    },
+    "debian-wheezy": {
+        "docker_image": "debian:wheezy",
+        "script": "debian.sh"
+    }
+}
