@@ -28,19 +28,23 @@ class BuildMachineDocker(object):
             image,
             insecure_registry=self.insecure_registry)
 
-    def launch(self, build_dir):
+    def launch(self, build_dir, extra_binds=None):
         if not self._image_exists(self.image):
             self.logger.info(
                 'Image does not exist: %s, pulling from repo..' % self.image)
             self._pull_image(self.image)
 
+        binds = { build_dir: '/opt' }
+        if extra_binds:
+            binds = binds.items() + extra_binds.items()
+
         self.logger.info('Starting container: %s' % self.image)
         self.container = self.dockerclient.create_container(
             image=self.image,
-            command='/opt/buildscript.sh')
+            command='/opt/scratch/buildscript.sh')
         self.dockerclient.start(
             container=self.container.get('Id'),
-            binds={build_dir: '/opt'})
+            binds=binds)
         lines = self.dockerclient.logs(container=self.container.get('Id'),
                                        stdout=True, stderr=True, stream=True)
         for line in lines:

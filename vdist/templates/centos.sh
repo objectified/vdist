@@ -5,7 +5,7 @@ PYTHON_VERSION="2.7.9"
 set -e
 
 # install general prerequisites
-yum -y update 
+yum -y update
 yum install -y ruby-devel curl libyaml-devel which tar rpm-build rubygems git python-setuptools zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
 
 yum groupinstall -y "Development Tools"
@@ -15,7 +15,7 @@ yum groupinstall -y "Development Tools"
 yum install -y {{build_deps|join(' ')}}
 {% endif %}
 
-# only install when needed, to save time with 
+# only install when needed, to save time with
 # pre-provisioned containers
 if [ ! -f /usr/bin/fpm ]; then
     gem install fpm
@@ -34,15 +34,26 @@ make && make install
 
 cd /opt
 
-{% if transport.type == 'git' %}
-# detected transport is 'git'
-git clone {{transport.uri}}
+{% if source.type == 'git' %}
+# source is 'git'
 
+git clone {{source.uri}}
 cd {{app}}
-
-git checkout {{transport.branch}}
-
+git checkout {{source.branch}}
 rm -rf .git
+
+{% elif source.type == 'directory' %}
+# source is 'directory'
+
+cp -r /opt/scratch/{{app}} .
+cd /opt/{{app}}
+
+{% else %}
+# source not set, bail out
+
+echo "invalid source type, exiting."
+exit 1
+
 {% endif %}
 
 virtualenv -p /opt/vdist-python/bin/python .

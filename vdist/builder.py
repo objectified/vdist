@@ -42,12 +42,12 @@ class BuildMachine(object):
 
 class Build(object):
 
-    def __init__(self, name, app, version, transport, build_deps=None,
+    def __init__(self, name, app, version, source, build_deps=None,
                  runtime_deps=None, build_machine_id=None, fpm_args=''):
         self.name = name
         self.app = app
         self.version = version
-        self.transport = transport
+        self.source = source
 
         self.build_deps = []
         if build_deps:
@@ -128,7 +128,7 @@ class Builder(object):
             app=build.app,
             build_deps=build.build_deps,
             runtime_deps=build.runtime_deps,
-            transport=build.transport,
+            source=build.source,
             version=build.version,
             fpm_args=build.fpm_args,
             local_uid=os.getuid(),
@@ -147,6 +147,25 @@ class Builder(object):
             f.write(script)
         os.chmod(path, 0o777)
 
+    def _populate_scratch_dir(self, scratch_dir, build):
+        # write rendered build script to scratch dir
+        self._write_build_script(
+            os.path.join(scratch_dir, 'buildscript.sh'),
+            self._render_template(build)
+        )
+
+        # local source type, copy local dir to scratch dir
+        if build.source['type'] == 'directory':
+            if not os.path.exists(build.source['path']):
+                raise ValueError(
+                    'path does not exist: %s' % build.source['path'])
+            else:
+                subdir = os.path.basename(build.source['path'])
+                shutil.copytree(
+                    build.source['path'],
+                    os.path.join(scratch_dir, subdir)
+                )
+
     def _create_build_dir(self, build):
         subdir_name = re.sub(
             '[^A-Za-z0-9\.\-]',
@@ -163,6 +182,13 @@ class Builder(object):
 
         os.mkdir(build_dir)
 
+        # create "scratch" subdirectory for stuff needed at build time
+        scratch_dir = os.path.join(build_dir, 'scratch')
+        os.mkdir(scratch_dir)
+
+        # write necessary stuff to scratch_dir
+        self._populate_scratch_dir(scratch_dir, build)
+
         return build_dir
 
     def run_build(self, build):
@@ -178,10 +204,6 @@ class Builder(object):
         )
 
         self.logger.info('writing build script to: %s' % build_dir)
-        self._write_build_script(
-            os.path.join(build_dir, 'buildscript.sh'),
-            self._render_template(build)
-        )
 
         self.logger.info('Running build machine for: %s' % build.name)
         build_machine.launch(build_dir=build_dir)
