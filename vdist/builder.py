@@ -34,6 +34,7 @@ class BuildMachine(object):
             if not hasattr(self, attr):
                 raise AttributeError(
                     'build machine misses attribute: %s' % attr)
+        return True
 
     def __str__(self):
         return str(self.__dict__)
