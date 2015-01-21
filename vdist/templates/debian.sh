@@ -33,11 +33,16 @@ make && make install
 
 cd /opt
 
-git clone {{git_url}}
+{% if transport.type == 'git' %}
+# detected transport is 'git'
+git clone {{transport.uri}}
 
 cd {{app}}
 
+git checkout {{transport.branch}}
+
 rm -rf .git
+{% endif %}
 
 virtualenv -p /opt/vdist-python/bin/python .
 

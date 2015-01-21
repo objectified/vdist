@@ -42,12 +42,12 @@ class BuildMachine(object):
 
 class Build(object):
 
-    def __init__(self, name, app, version, git_url, build_deps=None,
+    def __init__(self, name, app, version, transport, build_deps=None,
                  runtime_deps=None, build_machine_id=None, fpm_args=''):
         self.name = name
         self.app = app
         self.version = version
-        self.git_url = git_url
+        self.transport = transport
 
         self.build_deps = []
         if build_deps:
@@ -128,7 +128,7 @@ class Builder(object):
             app=build.app,
             build_deps=build.build_deps,
             runtime_deps=build.runtime_deps,
-            git_url=build.git_url,
+            transport=build.transport,
             version=build.version,
             fpm_args=build.fpm_args,
             local_uid=os.getuid(),
