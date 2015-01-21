@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name='vdist',
     version='0.1',
-    description='Create OS packages from Python projects using clean OS images',
-    long_description='Create OS packages from Python projects using clean OS images',
+    description='Create OS packages from Python projects using Docker containers',
+    long_description='Create OS packages from Python projects using Docker containers',
     author='L. Brouwer',
     author_email='objectified@gmail.com',
     url='https://github.com/objectified/vdist',
