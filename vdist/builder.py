@@ -42,12 +42,14 @@ class BuildMachine(object):
 
 class Build(object):
 
-    def __init__(self, name, app, version, source, build_deps=None,
-                 runtime_deps=None, build_machine_id=None, fpm_args=''):
+    def __init__(self, name, app, version, source, use_local_pypirc=False,
+                 build_deps=None, runtime_deps=None, build_machine_id=None,
+                 fpm_args=''):
         self.name = name
         self.app = app
         self.version = version
         self.source = source
+        self.use_local_pypirc = use_local_pypirc
 
         self.build_deps = []
         if build_deps:
@@ -132,7 +134,8 @@ class Builder(object):
             version=build.version,
             fpm_args=build.fpm_args,
             local_uid=os.getuid(),
-            local_gid=os.getgid()
+            local_gid=os.getgid(),
+            use_local_pypirc=build.use_local_pypirc
         )
 
     def _clean_build_basedir(self):
@@ -153,6 +156,13 @@ class Builder(object):
             os.path.join(scratch_dir, 'buildscript.sh'),
             self._render_template(build)
         )
+
+        # copy local ~/.pypirc if necessary
+        if build.use_local_pypirc:
+            shutil.copyfile(
+                os.path.join(os.path.expanduser('~'), '.pypirc'),
+                os.path.join(scratch_dir, '.pypirc')
+            )
 
         # local source type, copy local dir to scratch dir
         if build.source['type'] == 'directory':

@@ -56,6 +56,11 @@ exit 1
 
 {% endif %}
 
+
+{% if use_local_pypirc %}
+cp /opt/scratch/.pypirc ~
+{% endif %}
+
 virtualenv -p /opt/vdist-python/bin/python .
 
 source bin/activate
