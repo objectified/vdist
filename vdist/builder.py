@@ -168,7 +168,7 @@ class Builder(object):
             self._render_template(build)
         )
 
-        # copy local ~/.pypirc if necessary
+        # copy local ~/.pip if necessary
         if build.use_local_pip_conf:
             shutil.copytree(
                 os.path.join(os.path.expanduser('~'), '.pip'),
