@@ -36,14 +36,14 @@ cd /opt
 {% if source.type == 'git' %}
 
     git clone {{source.uri}}
-    cd {{app}}
+    cd {{basename}}
     git checkout {{source.branch}}
     rm -rf .git
 
 {% elif source.type == 'directory' %}
 
-    cp -r /opt/scratch/{{app}} .
-    cd /opt/{{app}}
+    cp -r /opt/scratch/{{basename}} .
+    cd /opt/{{basename}}
 
 {% else %}
 
@@ -53,11 +53,12 @@ cd /opt
 {% endif %}
 
 {% if use_local_pypirc %}
-
     cp /opt/scratch/.pypirc ~
-
 {% endif %}
 
+{% if working_dir %}
+    cd {{working_dir}}
+{% endif %}
 
 virtualenv -p /opt/vdist-python/bin/python .
 

@@ -44,12 +44,13 @@ class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pypirc=False,
                  build_deps=None, runtime_deps=None, build_machine_id=None,
-                 fpm_args=''):
+                 fpm_args='', working_dir=''):
         self.name = name
         self.app = app
         self.version = version
         self.source = source
         self.use_local_pypirc = use_local_pypirc
+        self.working_dir = working_dir
 
         self.build_deps = []
         if build_deps:
@@ -64,6 +65,13 @@ class Build(object):
 
     def __str__(self):
         return str(self.__dict__)
+
+    def _get_basename_from_source(build):
+        if self.source['type'] == 'git':
+            return os.path.basename(self.source['uri'])
+        if self.source['type'] == 'directory':
+            return os.path.basename(self.source['path'])
+        return ''
 
 
 class Builder(object):
@@ -135,8 +143,11 @@ class Builder(object):
             fpm_args=build.fpm_args,
             local_uid=os.getuid(),
             local_gid=os.getgid(),
-            use_local_pypirc=build.use_local_pypirc
+            use_local_pypirc=build.use_local_pypirc,
+            basename=build._get_basename_from_source(),
+            working_dir=build.working_dir()
         )
+
 
     def _clean_build_basedir(self):
         if os.path.exists(self.build_basedir):
