@@ -33,16 +33,31 @@ make && make install
 
 cd /opt
 
-{% if transport.type == 'git' %}
-# detected transport is 'git'
-git clone {{transport.uri}}
+{% if source.type == 'git' %}
 
-cd {{app}}
+    git clone {{source.uri}}
+    cd {{app}}
+    git checkout {{source.branch}}
+    rm -rf .git
 
-git checkout {{transport.branch}}
+{% elif source.type == 'directory' %}
 
-rm -rf .git
+    cp -r /opt/scratch/{{app}} .
+    cd /opt/{{app}}
+
+{% else %}
+
+    echo "invalid source type, exiting."
+    exit 1
+
 {% endif %}
+
+{% if use_local_pypirc %}
+
+    cp /opt/scratch/.pypirc ~
+
+{% endif %}
+
 
 virtualenv -p /opt/vdist-python/bin/python .
 
