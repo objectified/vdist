@@ -66,7 +66,7 @@ class Build(object):
     def __str__(self):
         return str(self.__dict__)
 
-    def _get_basename_from_source(build):
+    def _get_basename_from_source(self):
         if self.source['type'] == 'git':
             return os.path.basename(self.source['uri'])
         if self.source['type'] == 'directory':
@@ -145,7 +145,7 @@ class Builder(object):
             local_gid=os.getgid(),
             use_local_pypirc=build.use_local_pypirc,
             basename=build._get_basename_from_source(),
-            working_dir=build.working_dir()
+            working_dir=build.working_dir
         )
 
 
