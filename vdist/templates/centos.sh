@@ -66,8 +66,8 @@ virtualenv -p /opt/vdist-python/bin/python .
 
 source bin/activate
 
-if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
+if [ -f "$PWD{{requirements_path}}" ]; then
+    pip install -r $PWD{{requirements_path}} 
 fi
 
 if [ -f "setup.py" ]; then

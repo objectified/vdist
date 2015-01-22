@@ -44,13 +44,15 @@ class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pip_conf=False,
                  build_deps=None, runtime_deps=None, build_machine_id=None,
-                 fpm_args='', working_dir=''):
+                 fpm_args='', working_dir='',
+                 requirements_path='/requirements.txt'):
         self.name = name
         self.app = app
         self.version = version
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
         self.working_dir = working_dir
+        self.requirements_path = requirements_path
 
         self.build_deps = []
         if build_deps:
@@ -145,7 +147,8 @@ class Builder(object):
             local_gid=os.getgid(),
             use_local_pip_conf=build.use_local_pip_conf,
             basename=build.get_basename_from_source(),
-            working_dir=build.working_dir
+            working_dir=build.working_dir,
+            requirements_path=build.requirements_path
         )
 
 
