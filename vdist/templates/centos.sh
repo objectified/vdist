@@ -54,8 +54,8 @@ cd /opt
 {% endif %}
 
 
-{% if use_local_pypirc %}
-    cp /opt/scratch/.pypirc ~
+{% if use_local_pip_conf %}
+    cp -r /opt/scratch/.pip ~
 {% endif %}
 
 {% if working_dir %}

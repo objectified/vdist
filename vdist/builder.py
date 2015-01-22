@@ -42,14 +42,14 @@ class BuildMachine(object):
 
 class Build(object):
 
-    def __init__(self, name, app, version, source, use_local_pypirc=False,
+    def __init__(self, name, app, version, source, use_local_pip_conf=False,
                  build_deps=None, runtime_deps=None, build_machine_id=None,
                  fpm_args='', working_dir=''):
         self.name = name
         self.app = app
         self.version = version
         self.source = source
-        self.use_local_pypirc = use_local_pypirc
+        self.use_local_pip_conf = use_local_pip_conf
         self.working_dir = working_dir
 
         self.build_deps = []
@@ -143,7 +143,7 @@ class Builder(object):
             fpm_args=build.fpm_args,
             local_uid=os.getuid(),
             local_gid=os.getgid(),
-            use_local_pypirc=build.use_local_pypirc,
+            use_local_pip_conf=build.use_local_pip_conf,
             basename=build._get_basename_from_source(),
             working_dir=build.working_dir
         )
@@ -169,10 +169,10 @@ class Builder(object):
         )
 
         # copy local ~/.pypirc if necessary
-        if build.use_local_pypirc:
-            shutil.copyfile(
-                os.path.join(os.path.expanduser('~'), '.pypirc'),
-                os.path.join(scratch_dir, '.pypirc')
+        if build.use_local_pip_conf:
+            shutil.copytree(
+                os.path.join(os.path.expanduser('~'), '.pip'),
+                os.path.join(scratch_dir, '.pip')
             )
 
         # local source type, copy local dir to scratch dir
