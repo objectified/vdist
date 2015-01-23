@@ -137,18 +137,10 @@ class Builder(object):
         template = env.get_template(template_name)
 
         return template.render(
-            app=build.app,
-            build_deps=build.build_deps,
-            runtime_deps=build.runtime_deps,
-            source=build.source,
-            version=build.version,
-            fpm_args=build.fpm_args,
             local_uid=os.getuid(),
             local_gid=os.getgid(),
-            use_local_pip_conf=build.use_local_pip_conf,
             basename=build.get_basename_from_source(),
-            working_dir=build.working_dir,
-            requirements_path=build.requirements_path
+            **build.__dict__
         )
 
 
