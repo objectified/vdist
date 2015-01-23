@@ -23,6 +23,7 @@ Inside your project, there are a few basic prerequisites for vdist to work.
 Let's say we create a Python file called package.py, which would contain the following code:
 ```
 from vdist.builder import Builder
+from vdist.source import git
 
 builder = Builder()
 
@@ -30,7 +31,10 @@ builder.add_build(
     name='SciPyCentral builder :: centos6',
     app='SciPyCentral',
     version='1.0',
-    git_url='https://github.com/scipy/SciPyCentral',
+    source=git(
+        uri='https://github.com/scipy/SciPyCentral',
+        branch='master'
+    ),
     build_machine_id='centos6'
     build_deps=[],
     runtime_deps=['ImageMagick-devel'],
