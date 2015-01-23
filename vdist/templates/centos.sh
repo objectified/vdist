@@ -1,5 +1,6 @@
 #!/bin/bash -x
 PYTHON_VERSION="2.7.9"
+CUSTOM_PYTHON_PATH="/opt/vdist-python"
 
 # fail on error
 set -e
@@ -29,7 +30,7 @@ cd /var/tmp
 curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
 tar xzvf Python-$PYTHON_VERSION.tgz
 cd Python-$PYTHON_VERSION
-./configure --prefix=/opt/vdist-python
+./configure --prefix=$CUSTOM_PYTHON_PATH
 make && make install
 
 cd /opt
@@ -40,10 +41,14 @@ cd /opt
     cd {{basename}}
     git checkout {{source.branch}}
 
-{% elif source.type == 'directory' %}
+{% elif source.type in ['directory', 'git_directory'] %}
 
     cp -r /opt/scratch/{{basename}} .
     cd /opt/{{basename}}
+
+    {% if source.type == 'git_directory' %}
+        git checkout {{source.branch}}
+    {% endif %}
 
 {% else %}
 
@@ -52,16 +57,22 @@ cd /opt
 
 {% endif %}
 
-
 {% if use_local_pip_conf %}
     cp -r /opt/scratch/.pip ~
 {% endif %}
 
+# when working_dir is set, assume that is the base and remove the rest
 {% if working_dir %}
-    cd {{working_dir}}
+    mv {{working_dir}} /opt && rm -rf /opt/{{basename}}
+    cd /opt/{{working_dir}}
+
+    {% set basedir = working_dir %}
 {% endif %}
 
-virtualenv -p /opt/vdist-python/bin/python .
+# brutally remove virtualenv stuff from the current directory
+rm -rf bin include lib local
+
+virtualenv -p $CUSTOM_PYTHON_PATH/bin/python .
 
 source bin/activate
 
@@ -79,6 +90,6 @@ cd /
 find /opt -type d -name '.git' -print0 | xargs -0 rm -rf
 find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t rpm -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt
+fpm -s dir -t rpm -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $CUSTOM_PYTHON_PATH
 
 chown -R {{local_uid}}:{{local_gid}} /opt

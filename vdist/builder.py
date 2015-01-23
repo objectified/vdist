@@ -71,7 +71,7 @@ class Build(object):
     def get_basename_from_source(self):
         if self.source['type'] == 'git':
             return os.path.basename(self.source['uri'])
-        if self.source['type'] == 'directory':
+        if self.source['type'] in ['directory', 'git_directory']:
             return os.path.basename(self.source['path'])
         return ''
 
@@ -171,7 +171,7 @@ class Builder(object):
             )
 
         # local source type, copy local dir to scratch dir
-        if build.source['type'] == 'directory':
+        if build.source['type'] in ['directory', 'git_directory']:
             if not os.path.exists(build.source['path']):
                 raise ValueError(
                     'path does not exist: %s' % build.source['path'])
