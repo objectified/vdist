@@ -143,7 +143,6 @@ class Builder(object):
             **build.__dict__
         )
 
-
     def _clean_build_basedir(self):
         if os.path.exists(self.build_basedir):
             shutil.rmtree(self.build_basedir)
