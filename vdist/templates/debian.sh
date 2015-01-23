@@ -8,7 +8,7 @@ set -e
 apt-get update
 apt-get install ruby-dev build-essential git python-virtualenv curl libssl-dev libsqlite3-dev libgdbm-dev libreadline-dev libbz2-dev libncurses5-dev tk-dev -y
 
-# only install when needed, to save time with 
+# only install when needed, to save time with
 # pre-provisioned containers
 if [ ! -f /usr/bin/fpm ]; then
     gem install fpm
@@ -19,7 +19,7 @@ fi
 apt-get install -y {{build_deps|join(' ')}}
 {% endif %}
 
-# install python prerequisites 
+# install python prerequisites
 apt-get build-dep python -y
 apt-get install libssl-dev -y
 
@@ -38,7 +38,6 @@ cd /opt
     git clone {{source.uri}}
     cd {{basename}}
     git checkout {{source.branch}}
-    rm -rf .git
 
 {% elif source.type == 'directory' %}
 
@@ -65,15 +64,19 @@ virtualenv -p /opt/vdist-python/bin/python .
 source bin/activate
 
 if [ -f "$PWD{{requirements_path}}" ]; then
-    pip install -r $PWD{{requirements_path}} 
+    pip install -r $PWD{{requirements_path}}
 fi
 
 if [ -f "setup.py" ]; then
     python setup.py install
 fi
 
-cd ..
+cd /
 
-fpm -s dir -t deb -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt 
+# get rid of VCS info
+find /opt -type d -name '.git' -print0 | xargs -0 rm -rf
+find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
+
+fpm -s dir -t deb -n {{app}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt
 
 chown -R {{local_uid}}:{{local_gid}} /opt
