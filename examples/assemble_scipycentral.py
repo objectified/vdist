@@ -1,4 +1,5 @@
 from vdist.builder import Builder
+from vdist.source import git
 
 builder = Builder()
 
@@ -6,7 +7,10 @@ builder.add_build(
     name='SciPyCentral builder :: centos6',
     app='SciPyCentral',
     version='1.0',
-    git_url='https://github.com/scipy/SciPyCentral',
+    source=git(
+        uri='https://github.com/scipy/SciPyCentral',
+        branch='master'
+    ),
     build_machine_id='centos6'
 )
 
