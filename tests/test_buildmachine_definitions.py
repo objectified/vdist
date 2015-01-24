@@ -1,25 +1,25 @@
 import pytest
 
-from vdist.builder import BuildMachine
+from vdist.builder import BuildProfile
 
 
-def test_buildmachine_invalid_required_args():
+def test_buildprofile_invalid_required_args():
     with pytest.raises(AttributeError):
-        m = BuildMachine()
+        m = BuildProfile()
 
 
-def test_buildmachine_valid_required_args():
-    m = BuildMachine(
-        machine_id='some_machine_id',
+def test_buildprofile_valid_required_args():
+    m = BuildProfile(
+        profile_id='some_profile_id',
         docker_image='some_docker_image',
         script='foo.sh'
     )
     assert m.validate()
 
 
-def test_buildmachine_insecure_registry_arg():
-    m = BuildMachine(
-        machine_id='some_machine_id',
+def test_buildprofile_insecure_registry_arg():
+    m = BuildProfile(
+        profile_id='some_profile_id',
         docker_image='some_docker_image',
         script='foo.sh',
         insecure_registry="true"
@@ -27,10 +27,10 @@ def test_buildmachine_insecure_registry_arg():
     assert m.insecure_registry
 
 
-def test_buildmachine_invalid_arg():
+def test_buildprofile_invalid_arg():
     with pytest.raises(AttributeError):
-        m = BuildMachine(
-            machine_id='some_machine_id',
+        m = BuildProfile(
+            profile_id='some_profile_id',
             docker_image='some_docker_image',
             script='foo.sh',
             some_garbage='blah'

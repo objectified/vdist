@@ -10,10 +10,10 @@ from jinja2 import Environment, FileSystemLoader
 from vdist.machines.buildmachinedocker import BuildMachineDocker
 
 
-class BuildMachine(object):
+class BuildProfile(object):
 
     def __init__(self, **kwargs):
-        self.required_attrs = ['machine_id', 'docker_image', 'script']
+        self.required_attrs = ['profile_id', 'docker_image', 'script']
         self.optional_attrs = ['insecure_registry']
 
         for arg in kwargs:
@@ -33,7 +33,7 @@ class BuildMachine(object):
         for attr in self.required_attrs:
             if not hasattr(self, attr):
                 raise AttributeError(
-                    'build machine misses attribute: %s' % attr)
+                    'build profile misses attribute: %s' % attr)
         return True
 
     def __str__(self):
@@ -43,7 +43,7 @@ class BuildMachine(object):
 class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pip_conf=False,
-                 build_deps=None, runtime_deps=None, build_machine_id=None,
+                 build_deps=None, runtime_deps=None, profile=None,
                  fpm_args='', working_dir='',
                  requirements_path='/requirements.txt'):
         self.name = name
@@ -62,7 +62,7 @@ class Build(object):
         if runtime_deps:
             self.runtime_deps = runtime_deps
 
-        self.build_machine_id = build_machine_id
+        self.profile = profile
         self.fpm_args = fpm_args
 
     def __str__(self):
@@ -85,7 +85,7 @@ class Builder(object):
         self.logger = logging.getLogger('Builder')
 
         self.build_basedir = os.path.join(os.getcwd(), 'dist')
-        self.build_machines = {}
+        self.profiles = {}
         self.builds = []
 
         self.machine_logs = machine_logs
@@ -94,28 +94,28 @@ class Builder(object):
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
 
-    def _add_build_machines_from_file(self, config_file):
+    def _add_profiles_from_file(self, config_file):
         with open(config_file) as f:
-            machines = json.loads(f.read())
+            profiles = json.loads(f.read())
 
-            for machine_id in machines:
-                machine = BuildMachine(
-                    machine_id=machine_id,
-                    docker_image=machines[machine_id]['docker_image'],
-                    script=machines[machine_id]['script']
+            for profile_id in profiles:
+                profile = BuildProfile(
+                    profile_id=profile_id,
+                    docker_image=profiles[profile_id]['docker_image'],
+                    script=profiles[profile_id]['script']
                 )
-                self.build_machines[machine_id] = machine
+                self.profiles[profile_id] = profile
 
     def _load_mappings(self):
-        internal_build_machines = os.path.join(
+        internal_profiles = os.path.join(
             os.path.dirname(__file__),
-            'templates', 'internal_build_machines.json')
-        self._add_build_machines_from_file(internal_build_machines)
+            'templates', 'internal_profiles.json')
+        self._add_profiles_from_file(internal_profiles)
 
-        local_build_machines = os.path.join(
-            self.local_template_path, 'build_machines.json')
-        if os.path.isfile(local_build_machines):
-            self._add_build_machines_from_file(local_template_mappings)
+        local_profiles = os.path.join(
+            self.local_template_path, 'profiles.json')
+        if os.path.isfile(local_profiles):
+            self._add_profiles_from_file(local_profiles)
 
     def _render_template(self, build):
         template = None
@@ -128,12 +128,12 @@ class Builder(object):
         env = Environment(loader=FileSystemLoader(
             [internal_template_dir, local_template_dir]))
 
-        if build.build_machine_id not in self.build_machines:
-            raise BuildMachineNotFoundException(
-                'machine not found: %s' % build.build_machine_id)
+        if build.profile not in self.profiles:
+            raise BuildProfileNotFoundException(
+                'profile not found: %s' % build.profile)
 
-        machine = self.build_machines[build.build_machine_id]
-        template_name = machine.script
+        profile = self.profiles[build.profile]
+        template_name = profile.script
         template = env.get_template(template_name)
 
         return template.render(
@@ -186,7 +186,7 @@ class Builder(object):
             '[^A-Za-z0-9\.\-]',
             '_',
             '-'.join(
-                [build.app, build.version, build.build_machine_id]
+                [build.app, build.version, build.profile]
             )
         )
 
@@ -207,7 +207,7 @@ class Builder(object):
         return build_dir
 
     def run_build(self, build):
-        machine = self.build_machines[build.build_machine_id]
+        machine = self.profiles[build.profile]
 
         build_dir = self._create_build_dir(build)
 
@@ -246,7 +246,7 @@ class Builder(object):
             t.start()
 
 
-class BuildMachineNotFoundException(Exception):
+class BuildProfileNotFoundException(Exception):
     pass
 
 

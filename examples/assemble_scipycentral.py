@@ -11,7 +11,7 @@ builder.add_build(
         uri='https://github.com/scipy/SciPyCentral',
         branch='master'
     ),
-    build_machine_id='centos6'
+    profile='centos6'
 )
 
 builder.build()
