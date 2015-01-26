@@ -59,13 +59,19 @@ builder.build()
 ```
 If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "ScipyCentral" (some Django application I found on Github). The two builds will be running in parallel threads, so you will see the build output of both threads at the same time, where the logging of each thread can be identified by the build name. Here's an explanation of the keyword arguments that can be given to `add_build()`:
 
+### Required arguments:
 - `name` :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs
 - `app` :: the name of the application to build; this should also equal the project name in Git, and is used as the prefix for the filename of the resulting package
 - `version` :: the version of the application; this is used when building the OS package both in the name and in its meta information
-- `source` :: the argument that specifies how to get the source code to build from; the available source types can be found in the vdist.source module
+- `profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the build_profiles.json file explained later
+- `source` :: the argument that specifies how to get the source code to build from; the available source types are:
+  - `git(uri=uri, branch=branch)`: this source type attempts to git clone by using the supplied arguments
+  - `directory(path=path)`: this source type uses a local directory to build the project from, and uses no versioning data
+  - `git_directory(path=path, branch=branch)`: this source type uses a git checkout in a local directory to build the project from; it checks out the supplied branch before building
+
+### Optional arguments:
 - `build_deps` :: a list of build time dependencies; these are the names of the OS packages that need to be present on the build machine before setting up and building the project
 - `runtime_deps` :: a list of run time dependencies; these names are given to the resulting OS package as dependencies, so that they act as prerequisites when installing the final OS package
-- `build_profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the build_profiles.json file explained later
 - `fpm_args` :: any extra arguments that are given to FPM (https://github.com/jordansissel/fpm) when the actual package is being built
 - `working_dir` :: a subdirectory under your source tree that is to be regarded as the base directory; if set, only this directory is packaged, and the pip requirements are tried to be found here. This makes sense when you have a source repository with multiple projects under it.
 - `requirements_path` :: the path to your pip requirements file, relative to your project root; this defaults to `/requirements.txt`
