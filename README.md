@@ -65,9 +65,9 @@ If all goes well, running this file as a Python program will build two OS packag
 - `version` :: the version of the application; this is used when building the OS package both in the name and in its meta information
 - `profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the build_profiles.json file explained later
 - `source` :: the argument that specifies how to get the source code to build from; the available source types are:
-  - `git(uri=uri, branch=branch)`: this source type attempts to git clone by using the supplied arguments
-  - `directory(path=path)`: this source type uses a local directory to build the project from, and uses no versioning data
-  - `git_directory(path=path, branch=branch)`: this source type uses a git checkout in a local directory to build the project from; it checks out the supplied branch before building
+    * `git(uri=uri, branch=branch)`: this source type attempts to git clone by using the supplied arguments
+    * `directory(path=path)`: this source type uses a local directory to build the project from, and uses no versioning data
+    * `git_directory(path=path, branch=branch)`: this source type uses a git checkout in a local directory to build the project from; it checks out the supplied branch before building
 
 ### Optional arguments:
 - `build_deps` :: a list of build time dependencies; these are the names of the OS packages that need to be present on the build machine before setting up and building the project
