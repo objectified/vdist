@@ -25,9 +25,10 @@ class BuildProfile(object):
 
         self.validate()
 
+        self.insecure_registry = False
         if hasattr(self, 'insecure_registry') and \
-                self.insecure_registry == 'false':
-            self.insecure_registry = False
+                self.insecure_registry == 'true':
+            self.insecure_registry = True
 
     def validate(self):
         for attr in self.required_attrs:
@@ -104,9 +105,13 @@ class Builder(object):
                     docker_image=profiles[profile_id]['docker_image'],
                     script=profiles[profile_id]['script']
                 )
+                if 'insecure_registry' in profiles[profile_id] and \
+                        profiles[profile_id]['insecure_registry'] == 'true':
+                    profile.insecure_registry = True
+
                 self.profiles[profile_id] = profile
 
-    def _load_mappings(self):
+    def _load_profiles(self):
         internal_profiles = os.path.join(
             os.path.dirname(__file__),
             'templates', 'internal_profiles.json')
@@ -207,15 +212,16 @@ class Builder(object):
         return build_dir
 
     def run_build(self, build):
-        machine = self.profiles[build.profile]
+        profile = self.profiles[build.profile]
 
         build_dir = self._create_build_dir(build)
 
-        self.logger.info('launching docker image: %s' % machine.docker_image)
+        self.logger.info('launching docker image: %s' % profile.docker_image)
 
         build_machine = BuildMachineDocker(
             machine_logs=self.machine_logs,
-            image=machine.docker_image
+            image=profile.docker_image,
+            insecure_registry=profile.insecure_registry
         )
 
         self.logger.info('writing build script to: %s' % build_dir)
@@ -227,7 +233,7 @@ class Builder(object):
         build_machine.shutdown()
 
     def build(self):
-        self._load_mappings()
+        self._load_profiles()
         self._clean_build_basedir()
         self._create_build_basedir()
 

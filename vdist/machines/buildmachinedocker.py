@@ -24,6 +24,7 @@ class BuildMachineDocker(object):
         return False
 
     def _pull_image(self, image):
+        self.logger.info('are we using an insecure registry? %s' % self.insecure_registry)
         self.dockerclient.pull(
             image,
             insecure_registry=self.insecure_registry)
