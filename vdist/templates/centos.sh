@@ -73,13 +73,6 @@ cd /opt
     {% set basedir = working_dir %}
 {% endif %}
 
-ls /opt
-if [ -f $PYTHON_BASEDIR/bin/python ]; then
-    echo "$PYTHON_BASEDIR/bin/python is present"
-else
-    echo "$PYTHON_BASEDIR/bin/python is not present"
-fi
-
 # brutally remove virtualenv stuff from the current directory
 rm -rf bin include lib local
 
