@@ -35,14 +35,14 @@ class BuildMachineDocker(object):
                 'Image does not exist: %s, pulling from repo..' % self.image)
             self._pull_image(self.image)
 
-        binds = { build_dir: '/opt' }
+        binds = { build_dir: '/work' }
         if extra_binds:
             binds = binds.items() + extra_binds.items()
 
         self.logger.info('Starting container: %s' % self.image)
         self.container = self.dockerclient.create_container(
             image=self.image,
-            command='/opt/scratch/buildscript.sh')
+            command='/work/scratch/buildscript.sh')
         self.dockerclient.start(
             container=self.container.get('Id'),
             binds=binds)

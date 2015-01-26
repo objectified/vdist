@@ -47,7 +47,7 @@ cd /opt
 
 {% elif source.type in ['directory', 'git_directory'] %}
 
-    cp -r /opt/scratch/{{basename}} .
+    cp -r /work/scratch/{{basename}} .
     cd /opt/{{basename}}
 
     {% if source.type == 'git_directory' %}
@@ -62,7 +62,7 @@ cd /opt
 {% endif %}
 
 {% if use_local_pip_conf %}
-    cp -r /opt/scratch/.pip ~
+    cp -r /work/scratch/.pip ~
 {% endif %}
 
 # when working_dir is set, assume that is the base and remove the rest
@@ -103,4 +103,6 @@ find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
 
 fpm -s dir -t rpm -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $PYTHON_BASEDIR
 
-chown -R {{local_uid}}:{{local_gid}} /opt
+cp /opt/*rpm /work/
+
+chown -R {{local_uid}}:{{local_gid}} /work
