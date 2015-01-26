@@ -45,7 +45,8 @@ class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pip_conf=False,
                  build_deps=None, runtime_deps=None, profile=None,
-                 fpm_args='', working_dir='',
+                 fpm_args='', working_dir='', python_basedir='/opt/vdist-python',
+                 compile_python=True, compile_python_version='2.7.9',
                  requirements_path='/requirements.txt'):
         self.name = name
         self.app = app
@@ -54,6 +55,9 @@ class Build(object):
         self.use_local_pip_conf = use_local_pip_conf
         self.working_dir = working_dir
         self.requirements_path = requirements_path
+        self.python_basedir = python_basedir
+        self.compile_python = compile_python
+        self.compile_python_version = compile_python_version
 
         self.build_deps = []
         if build_deps:

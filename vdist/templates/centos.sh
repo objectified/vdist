@@ -1,6 +1,6 @@
 #!/bin/bash -x
-PYTHON_VERSION="2.7.9"
-CUSTOM_PYTHON_PATH="/opt/vdist-python"
+PYTHON_VERSION="{{compile_python_version}}"
+PYTHON_BASEDIR="{{python_basedir}}"
 
 # fail on error
 set -e
@@ -25,13 +25,17 @@ fi
 # install prerequisites
 easy_install virtualenv
 
-# compile and install python
-cd /var/tmp
-curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
-tar xzvf Python-$PYTHON_VERSION.tgz
-cd Python-$PYTHON_VERSION
-./configure --prefix=$CUSTOM_PYTHON_PATH
-make && make install
+{% if compile_python %}
+
+    # compile and install python
+    cd /var/tmp
+    curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+    tar xzvf Python-$PYTHON_VERSION.tgz
+    cd Python-$PYTHON_VERSION
+    ./configure --prefix=$PYTHON_BASEDIR
+    make && make install
+
+{% endif %}
 
 cd /opt
 
@@ -69,10 +73,17 @@ cd /opt
     {% set basedir = working_dir %}
 {% endif %}
 
+ls /opt
+if [ -f $PYTHON_BASEDIR/bin/python ]; then
+    echo "$PYTHON_BASEDIR/bin/python is present"
+else
+    echo "$PYTHON_BASEDIR/bin/python is not present"
+fi
+
 # brutally remove virtualenv stuff from the current directory
 rm -rf bin include lib local
 
-virtualenv -p $CUSTOM_PYTHON_PATH/bin/python .
+virtualenv -p $PYTHON_BASEDIR/bin/python .
 
 source bin/activate
 
@@ -90,6 +101,6 @@ cd /
 find /opt -type d -name '.git' -print0 | xargs -0 rm -rf
 find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t rpm -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $CUSTOM_PYTHON_PATH
+fpm -s dir -t rpm -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $PYTHON_BASEDIR
 
 chown -R {{local_uid}}:{{local_gid}} /opt
