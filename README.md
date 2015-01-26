@@ -63,7 +63,7 @@ If all goes well, running this file as a Python program will build two OS packag
 - `name` :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs
 - `app` :: the name of the application to build; this should also equal the project name in Git, and is used as the prefix for the filename of the resulting package
 - `version` :: the version of the application; this is used when building the OS package both in the name and in its meta information
-- `profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the build_profiles.json file explained later
+- `profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the profiles.json file explained later
 - `source` :: the argument that specifies how to get the source code to build from; the available source types are:
     * `git(uri=uri, branch=branch)`: this source type attempts to git clone by using the supplied arguments
     * `directory(path=path)`: this source type uses a local directory to build the project from, and uses no versioning data
