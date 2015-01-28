@@ -1,7 +1,10 @@
 import logging
+import os
 
 import docker
 from docker.utils import kwargs_from_env
+
+from vdist import defaults
 
 
 class BuildMachineDocker(object):
@@ -35,14 +38,19 @@ class BuildMachineDocker(object):
                 'Image does not exist: %s, pulling from repo..' % self.image)
             self._pull_image(self.image)
 
-        binds = { build_dir: '/work' }
+        binds = { build_dir: defaults.SHARED_DIR }
         if extra_binds:
             binds = binds.items() + extra_binds.items()
 
+        path_to_command = os.path.join(
+            defaults.SHARED_DIR,
+            defaults.SCRATCH_DIR,
+            defaults.SCRATCH_BUILDSCRIPT_NAME
+        )
         self.logger.info('Starting container: %s' % self.image)
         self.container = self.dockerclient.create_container(
             image=self.image,
-            command='/work/scratch/buildscript.sh')
+            command=path_to_command)
         self.dockerclient.start(
             container=self.container.get('Id'),
             binds=binds)

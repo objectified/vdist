@@ -154,6 +154,9 @@ class Builder(object):
             local_uid=os.getuid(),
             local_gid=os.getgid(),
             basename=build.get_basename_from_source(),
+            package_build_root=defaults.PACKAGE_BUILD_ROOT,
+            shared_dir=defaults.SHARED_DIR,
+            scratch_dir=defaults.SCRATCH_DIR,
             **build.__dict__
         )
 

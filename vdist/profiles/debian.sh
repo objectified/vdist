@@ -1,6 +1,6 @@
 #!/bin/bash -x
-PYTHON_VERSION="2.7.9"
-CUSTOM_PYTHON_PATH="/opt/vdist-python"
+PYTHON_VERSION="{{compile_python_version}}"
+PYTHON_BASEDIR="{{python_basedir}}"
 
 # fail on error
 set -e
@@ -20,19 +20,23 @@ fi
 apt-get install -y {{build_deps|join(' ')}}
 {% endif %}
 
-# install python prerequisites
-apt-get build-dep python -y
-apt-get install libssl-dev -y
+{% if compile_python %}
 
-# compile and install python
-cd /var/tmp
-curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
-tar xzvf Python-$PYTHON_VERSION.tgz
-cd Python-$PYTHON_VERSION
-./configure --prefix=$CUSTOM_PYTHON_PATH
-make && make install
+    # install python prerequisites
+    apt-get build-dep python -y
+    apt-get install libssl-dev -y
 
-cd /opt
+    # compile and install python
+    cd /var/tmp
+    curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+    tar xzvf Python-$PYTHON_VERSION.tgz
+    cd Python-$PYTHON_VERSION
+    ./configure --prefix=$PYTHON_BASEDIR
+    make && make install
+
+{% endif %}
+
+cd {{package_build_root}}
 
 {% if source.type == 'git' %}
 
@@ -42,8 +46,8 @@ cd /opt
 
 {% elif source.type in ['directory', 'git_directory'] %}
 
-    cp -r /opt/scratch/{{basename}} .
-    cd /opt/{{basename}}
+    cp -r {{shared_dir}}/{{scratch_dir}}/{{basename}} .
+    cd {{package_build_root}}/{{basename}}
 
     {% if source.type == 'git_directory' %}
         git checkout {{source.branch}}
@@ -63,8 +67,8 @@ cd /opt
 
 # when working_dir is set, assume that is the base and remove the rest
 {% if working_dir %}
-    mv {{working_dir}} /opt && rm -rf /opt/{{basename}}
-    cd /opt/{{working_dir}}
+    mv {{working_dir}} {{package_build_root}} && rm -rf {{package_build_root}}/{{basename}}
+    cd {{package_build_root}}/{{working_dir}}
 
     {% set basedir = working_dir %}
 {% endif %}
@@ -72,7 +76,7 @@ cd /opt
 # brutally remove virtualenv stuff from the current directory
 rm -rf bin include lib local
 
-virtualenv -p $CUSTOM_PYTHON_PATH/bin/python .
+virtualenv -p $PYTHON_BASEDIR/bin/python .
 
 source bin/activate
 
@@ -87,9 +91,11 @@ fi
 cd /
 
 # get rid of VCS info
-find /opt -type d -name '.git' -print0 | xargs -0 rm -rf
-find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
+find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
+find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t deb -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $CUSTOM_PYTHON_PATH
+fpm -s dir -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{basedir}} $PYTHON_BASEDIR
 
-chown -R {{local_uid}}:{{local_gid}} /opt
+cp {{package_build_root}}/*deb {{shared_dir}}
+
+chown -R {{local_uid}}:{{local_gid}} {{shared_dir}}
