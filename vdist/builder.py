@@ -7,6 +7,7 @@ import threading
 
 from jinja2 import Environment, FileSystemLoader
 
+from vdist import defaults
 from vdist.machines.buildmachinedocker import BuildMachineDocker
 
 
@@ -45,8 +46,10 @@ class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pip_conf=False,
                  build_deps=None, runtime_deps=None, profile=None,
-                 fpm_args='', working_dir='', python_basedir='/opt/vdist-python',
-                 compile_python=True, compile_python_version='2.7.9',
+                 fpm_args='', working_dir='',
+                 python_basedir=defaults.PYTHON_BASEDIR,
+                 compile_python=True,
+                 compile_python_version=defaults.PYTHON_VERSION,
                  requirements_path='/requirements.txt'):
         self.name = name
         self.app = app
@@ -89,7 +92,9 @@ class Builder(object):
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
-        self.build_basedir = os.path.join(os.getcwd(), 'dist')
+        self.build_basedir = os.path.join(
+            os.getcwd(),
+            defaults.BUILD_BASEDIR)
         self.profiles = {}
         self.builds = []
 
@@ -118,11 +123,11 @@ class Builder(object):
     def _load_profiles(self):
         internal_profiles = os.path.join(
             os.path.dirname(__file__),
-            'templates', 'internal_profiles.json')
+            'profiles', 'internal_profiles.json')
         self._add_profiles_from_file(internal_profiles)
 
         local_profiles = os.path.join(
-            self.local_template_path, 'profiles.json')
+            defaults.LOCAL_PROFILES_DIR, defaults.LOCAL_PROFILES_FILE)
         if os.path.isfile(local_profiles):
             self._add_profiles_from_file(local_profiles)
 
@@ -130,7 +135,7 @@ class Builder(object):
         template = None
 
         internal_template_dir = os.path.join(
-            os.path.dirname(__file__), 'templates')
+            os.path.dirname(__file__), 'profiles')
 
         local_template_dir = os.path.abspath(self.local_template_path)
 
@@ -149,6 +154,9 @@ class Builder(object):
             local_uid=os.getuid(),
             local_gid=os.getgid(),
             basename=build.get_basename_from_source(),
+            package_build_root=defaults.PACKAGE_BUILD_ROOT,
+            shared_dir=defaults.SHARED_DIR,
+            scratch_dir=defaults.SCRATCH_DIR,
             **build.__dict__
         )
 
@@ -167,7 +175,7 @@ class Builder(object):
     def _populate_scratch_dir(self, scratch_dir, build):
         # write rendered build script to scratch dir
         self._write_build_script(
-            os.path.join(scratch_dir, 'buildscript.sh'),
+            os.path.join(scratch_dir, defaults.SCRATCH_BUILDSCRIPT_NAME),
             self._render_template(build)
         )
 
@@ -207,7 +215,7 @@ class Builder(object):
         os.mkdir(build_dir)
 
         # create "scratch" subdirectory for stuff needed at build time
-        scratch_dir = os.path.join(build_dir, 'scratch')
+        scratch_dir = os.path.join(build_dir, defaults.SCRATCH_DIR)
         os.mkdir(scratch_dir)
 
         # write necessary stuff to scratch_dir
@@ -227,8 +235,6 @@ class Builder(object):
             image=profile.docker_image,
             insecure_registry=profile.insecure_registry
         )
-
-        self.logger.info('writing build script to: %s' % build_dir)
 
         self.logger.info('Running build machine for: %s' % build.name)
         build_machine.launch(build_dir=build_dir)

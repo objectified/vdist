@@ -37,7 +37,7 @@ easy_install virtualenv
 
 {% endif %}
 
-cd /opt
+cd {{package_build_root}}
 
 {% if source.type == 'git' %}
 
@@ -47,8 +47,8 @@ cd /opt
 
 {% elif source.type in ['directory', 'git_directory'] %}
 
-    cp -r /work/scratch/{{basename}} .
-    cd /opt/{{basename}}
+    cp -r {{shared_dir}}/{{scratch_dir}}/{{basename}} .
+    cd {{package_build_root}}/{{basename}}
 
     {% if source.type == 'git_directory' %}
         git checkout {{source.branch}}
@@ -62,13 +62,13 @@ cd /opt
 {% endif %}
 
 {% if use_local_pip_conf %}
-    cp -r /work/scratch/.pip ~
+    cp -r {{shared_dir}}/{{scratch_dir}}/.pip ~
 {% endif %}
 
 # when working_dir is set, assume that is the base and remove the rest
 {% if working_dir %}
-    mv {{working_dir}} /opt && rm -rf /opt/{{basename}}
-    cd /opt/{{working_dir}}
+    mv {{working_dir}} {{package_build_root}} && rm -rf {{package_build_root}}/{{basename}}
+    cd {{package_build_root}}/{{working_dir}}
 
     {% set basedir = working_dir %}
 {% endif %}
@@ -91,11 +91,11 @@ fi
 cd /
 
 # get rid of VCS info
-find /opt -type d -name '.git' -print0 | xargs -0 rm -rf
-find /opt -type d -name '.svn' -print0 | xargs -0 rm -rf
+find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
+find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t rpm -n {{app}} -p /opt -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} /opt/{{basedir}} $PYTHON_BASEDIR
+fpm -s dir -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{basedir}} $PYTHON_BASEDIR
 
-cp /opt/*rpm /work/
+cp {{package_build_root}}/*rpm {{shared_dir}}
 
-chown -R {{local_uid}}:{{local_gid}} /work
+chown -R {{local_uid}}:{{local_gid}} {{shared_dir}}
