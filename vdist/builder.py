@@ -228,8 +228,6 @@ class Builder(object):
             insecure_registry=profile.insecure_registry
         )
 
-        self.logger.info('writing build script to: %s' % build_dir)
-
         self.logger.info('Running build machine for: %s' % build.name)
         build_machine.launch(build_dir=build_dir)
 
