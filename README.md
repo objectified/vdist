@@ -21,7 +21,7 @@ What vdist does is this: you create a Python file with some information about yo
 
 By default, vdist will also compile and install a fresh Python interpreter for you, to be used by your application. This interpreter is used to create the aforementioned virtualenv, and will also be used when you deploy the resulting OS package. This allows you to choose the Python interpreter you want to use, instead of being tied to the version that is shipped with the OS you're deploying on.
 
-Note that vdist is not meant to build Docker images for your project, it merely creates (nearly) self contained OS packages of your application, which you can then use to deploy on the target platform you told vdist to build for.
+Note that vdist is not meant to build Docker images for your project, it merely creates (nearly) self contained OS packages of your application, which you can then use to deploy on the target platform you told vdist to build for. Also, vdist is not meant to create OS packages from Python libraries, but for applications. For a reasonably clear distinction between the two, I suggest you read [this article by Donald Stufft](https://caremad.io/2013/07/setup-vs-requirement/). Of course, your application can definitely include a number of libraries at build time.
 
 ## How to install
 Installing should be as easy as:
@@ -90,15 +90,20 @@ If all goes well, running this file as a Python program will build two OS packag
 - `compile_python` :: indicates whether Python should be fetched from python.org, compiled and shipped for you; defaults to True
 - `compile_python_version` :: the version of Python to compile and ship, effective only when the `compile_python` setting is not False; defaults to the latest 2.7.\* version
 - `python_basedir` :: specifies one of two things: 1) where Python can be found (your company might have a prepackaged Python) 2) where vdist should install the compiled Python distribution
-- `profiles_dir` :: the path to your own vdist profiles; defaults to $basedir/buildprofiles
 
 Here's another, more customized example.
 
 ```
+import os
+
 from vdist.builder import Builder
 from vdist.source import directory
 
-builder = Builder()
+# instantiate the builder while passing it a custom location for 
+# your profile definitions
+profiles_path = os.path.dirname(os.path.abspath(__file__))
+
+builder = Builder(profiles_dir='%s/deploy/profiles' % profiles_path)
 
 # add CentOS6 build
 builder.add_build(
@@ -144,10 +149,6 @@ builder.add_build(
     # extra arguments to use when your pip requirements file is being installed
     # by vdist; a URL to your private PyPI server, for example
     pip_args='--index-url https://pypi.yourcompany.com/simple/',
-
-    # specify a custom directory to point to your vdist build profiles; this is
-    # where the profiles.json and accompanying script templates should be placed
-    profiles_dir='deploy/profiles',
 
     # find your pip requirements somewhere else instead of the project root
     requirements_path='deploy/requirements-prod.txt'
