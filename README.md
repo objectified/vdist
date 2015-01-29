@@ -1,6 +1,16 @@
 # vdist
 
-vdist (Virtualenv Distribute) is a tool that lets you build OS packages from your Python projects, while aiming to build an isolated environment for your Python project by utilizing [virtualenv](https://virtualenv.pypa.io/en/latest/). This means that your application will not depend on OS provided packages of Python modules, including their versions. The idea is largely inspired by [this article](https://hynek.me/articles/python-app-deployment-with-native-packages/), so vdist basically implements the ideas outlined there.
+vdist (Virtualenv Distribute) is a tool that lets you build OS packages from your Python applications, while aiming to build an isolated environment for your Python project by utilizing [virtualenv](https://virtualenv.pypa.io/en/latest/). This means that your application will not depend on OS provided packages of Python modules, including their versions. The idea is largely inspired by [this article](https://hynek.me/articles/python-app-deployment-with-native-packages/), so vdist basically implements the ideas outlined there. 
+
+In short, the following principles are the most important motivation behind vdist:
+- OS packages are a good idea; they make sure your application can be rolled out just like any other program, using the same tools (Salt, Ansible, Puppet, etc.)
+- never let your application depend on packages provided by your OS
+- build time dependencies are not runtime dependencies; no compilers etc. on your target system
+- running your internal OS package mirrors and private PyPI repositories is a good idea
+
+vdist takes an approach that's slightly different from the implementation examples found in the original article, but it's still very similar.
+
+The main objective of vdist is to create clean, self contained OS packages from Python applications. This means that OS packages created with vdist contain your application, all Python dependencies needed by your application, and a Python interpreter. Every time vdist is creating a build, it does so on a clean OS image where all *build time* OS dependencies are installed from scratch before your application is being packaged on top of it. This means that the build machine will always be reverted to its original, clean state. To facilitate this, vdist uses Docker containers. By using so called "profiles", it's fairly easy to use your own custom Docker containers to be used by vdist when your project builds.
 
 What vdist does is this: you create a Python file with some information about your project, vdist sets up a container for the specified target OS with the build time dependencies for the project, checks out your project inside the container, installs its Python dependencies in a virtualenv, optionally does some additional things and builds an OS package for you. This way, you know for sure that the Python modules needed by your application are installable on a clean installation of your target OS (including OS provided libraries, header files etc.) Also, you'll soon find out when something is missing on the target OS you want to deploy on.
 
@@ -99,3 +109,19 @@ In case it's not directly obvious, this configuration file defines 2 profiles: c
 
 ## How to contribute
 I would certainly appreciate your help! Issues, feature requests and pull requests are more than welcome. I'm guessing I would need much more effort creating more profiles, but any help is appreciated!
+
+## Questions and Answers
+*Q: Can I use vdist without running my own OS package mirrors, Docker registry and PyPI index?*
+Yes you can. But your builds will be rather slow, and you won't have the advantages a private PyPI index will provide you with. It's not hard to set up, especially when using Docker.
+
+*Q: Updating the Docker image takes a long time for every build. How can I speed this up?*
+This will happen when you're using plain Docker images from the central Docker hub, which are probably not up to date with the latest packages. Also, vdist will try to install fpm as a ruby gem when it's not available yet. Installing ruby gems can take a long time. Next to this, vdist will by default compile a Python interpreter for you, which takes quite a while to build as well. For creating the most self contained builds with maximum speed, read the "Optimizing your build environment" section in the vdist documentation.
+
+*Q: Why do you compile a Python interpreter from scratch? Is the OS provided interpreter not good enough?*
+As with your module dependencies, you want to be sure that your application is as self contained as possible, using only those versions that you trust. The Python interpreter should be no exception to this. Also since we're using virtualenv, we need to make sure that the same interpreter that was used to set up the virtualenv can still be used at runtime. To have this guarantee, the interpreter is shipped.
+
+*Q: Can vdist be used to create Docker images for my application, instead of OS packages?*
+At the moment there is no builtin support for this, although I guess it could be done. When in high demand, I can look into it.
+
+*Q: Why didn't you just plug into setuptools/distutils, or an existing build tool like PyBuilder?*
+I could have done that, but it seemed that it would get a little messy. Having said that, I'm all ears when people want such a thing.
