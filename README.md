@@ -63,7 +63,7 @@ builder.add_build(
         uri='http://yourgithost.internal/yourcompany/yourproject',
         branch='master'
     ),
-    profile='centos7'
+    profile='ubuntu-trusty'
 )
 
 builder.build()
