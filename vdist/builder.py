@@ -46,7 +46,7 @@ class Build(object):
 
     def __init__(self, name, app, version, source, use_local_pip_conf=False,
                  build_deps=None, runtime_deps=None, profile=None,
-                 fpm_args='', working_dir='',
+                 fpm_args='', pip_args='', working_dir='',
                  python_basedir=defaults.PYTHON_BASEDIR,
                  compile_python=True,
                  compile_python_version=defaults.PYTHON_VERSION,
@@ -72,6 +72,7 @@ class Build(object):
 
         self.profile = profile
         self.fpm_args = fpm_args
+        self.pip_args = pip_args
 
     def __str__(self):
         return str(self.__dict__)

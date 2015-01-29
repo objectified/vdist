@@ -81,7 +81,7 @@ virtualenv -p $PYTHON_BASEDIR/bin/python .
 source bin/activate
 
 if [ -f "$PWD{{requirements_path}}" ]; then
-    pip install -r $PWD{{requirements_path}}
+    pip install {{pip_args}} -r $PWD{{requirements_path}}
 fi
 
 if [ -f "setup.py" ]; then
