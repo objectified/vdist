@@ -29,6 +29,8 @@ class BuildProfile(object):
         if hasattr(self, 'insecure_registry') and \
                 self.insecure_registry == 'true':
             self.insecure_registry = True
+        else:
+            self.insecure_registry = False
 
     def validate(self):
         for attr in self.required_attrs:
