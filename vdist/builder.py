@@ -87,7 +87,7 @@ class Build(object):
 
 class Builder(object):
 
-    def __init__(self, local_template_path='templates', machine_logs=True):
+    def __init__(self, profiles_dir=defaults.LOCAL_PROFILES_DIR, machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
                             '[%(threadName)s] %(name)s %(message)s',
                             level=logging.INFO)
@@ -100,7 +100,7 @@ class Builder(object):
         self.builds = []
 
         self.machine_logs = machine_logs
-        self.local_template_path = local_template_path
+        self.local_profiles_dir = profiles_dir
 
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
@@ -128,7 +128,7 @@ class Builder(object):
         self._add_profiles_from_file(internal_profiles)
 
         local_profiles = os.path.join(
-            defaults.LOCAL_PROFILES_DIR, defaults.LOCAL_PROFILES_FILE)
+            self.local_profiles_dir, defaults.LOCAL_PROFILES_FILE)
         if os.path.isfile(local_profiles):
             self._add_profiles_from_file(local_profiles)
 
@@ -138,7 +138,7 @@ class Builder(object):
         internal_template_dir = os.path.join(
             os.path.dirname(__file__), 'profiles')
 
-        local_template_dir = os.path.abspath(self.local_template_path)
+        local_template_dir = os.path.abspath(self.local_profiles_dir)
 
         env = Environment(loader=FileSystemLoader(
             [internal_template_dir, local_template_dir]))
