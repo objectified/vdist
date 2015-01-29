@@ -24,6 +24,7 @@ def test_buildprofile_insecure_registry_arg():
         script='foo.sh',
         insecure_registry="true"
     )
+    print m
     assert m.insecure_registry
 
 

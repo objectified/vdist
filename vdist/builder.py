@@ -8,7 +8,7 @@ import threading
 from jinja2 import Environment, FileSystemLoader
 
 from vdist import defaults
-from vdist.machines.buildmachinedocker import BuildMachineDocker
+from vdist.buildmachine import BuildMachine
 
 
 class BuildProfile(object):
@@ -26,7 +26,6 @@ class BuildProfile(object):
 
         self.validate()
 
-        self.insecure_registry = False
         if hasattr(self, 'insecure_registry') and \
                 self.insecure_registry == 'true':
             self.insecure_registry = True
@@ -231,7 +230,7 @@ class Builder(object):
 
         self.logger.info('launching docker image: %s' % profile.docker_image)
 
-        build_machine = BuildMachineDocker(
+        build_machine = BuildMachine(
             machine_logs=self.machine_logs,
             image=profile.docker_image,
             insecure_registry=profile.insecure_registry

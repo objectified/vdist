@@ -7,10 +7,10 @@ from docker.utils import kwargs_from_env
 from vdist import defaults
 
 
-class BuildMachineDocker(object):
+class BuildMachine(object):
 
     def __init__(self, machine_logs=True, image=None, insecure_registry=False):
-        self.logger = logging.getLogger('BuildMachineDocker')
+        self.logger = logging.getLogger('BuildMachine')
 
         self.dockerclient = docker.Client(**kwargs_from_env())
         self.container = None
