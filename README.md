@@ -1,6 +1,6 @@
 # vdist
 
-vdist (Virtualenv Distribute) is a tool that lets you build OS packages from your Python applications, while aiming to build an isolated environment for your Python project by utilizing [virtualenv](https://virtualenv.pypa.io/en/latest/). This means that your application will not depend on OS provided packages of Python modules, including their versions. The idea is largely inspired by [this article](https://hynek.me/articles/python-app-deployment-with-native-packages/), so vdist basically implements the ideas outlined there. 
+vdist (Virtualenv Distribute) is a tool that lets you build OS packages from your Python applications, while aiming to build an isolated environment for your Python project by utilizing [virtualenv](https://virtualenv.pypa.io/en/latest/). This means that your application will not depend on OS provided packages of Python modules, including their versions. The idea is largely inspired by [this article](https://hynek.me/articles/python-app-deployment-with-native-packages/), so vdist basically implements the ideas outlined there.
 
 In short, the following principles are the most important motivation behind vdist:
 
@@ -42,37 +42,33 @@ from vdist.source import git
 
 builder = Builder()
 
+# add CentOS6 build
 builder.add_build(
-    name='SciPyCentral builder :: centos6',
-    app='SciPyCentral',
+    name='myproject :: centos6 build',
+    app='myproject',
     version='1.0',
     source=git(
-        uri='https://github.com/scipy/SciPyCentral',
+        uri='http://yourgithost.internal/yourcompany/yourproject',
         branch='master'
     ),
     profile='centos6'
-    build_deps=[],
-    runtime_deps=['ImageMagick-devel'],
-    fpm_args='--license ScipyCentral'
 )
 
+# add Ubuntu build
 builder.add_build(
-    name='SciPyCentral builder :: ubuntu trusty',
-    app='SciPyCentral',
+    name='myproject :: ubuntu trusty build',
+    app='myproject',
     version='1.0',
     source=git(
-        uri='https://github.com/scipy/SciPyCentral',
+        uri='http://yourgithost.internal/yourcompany/yourproject',
         branch='master'
     ),
-    profile='ubuntu-trusty'
-    build_deps=[],
-    runtime_deps=['libimagemagick-dev'],
-    fpm_args='--license ScipyCentral'
+    profile='centos7'
 )
 
 builder.build()
 ```
-If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "ScipyCentral" (some Django application I found on Github). The two builds will be running in parallel threads, so you will see the build output of both threads at the same time, where the logging of each thread can be identified by the build name. Here's an explanation of the keyword arguments that can be given to `add_build()`:
+If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "myproject". The two builds will be running in parallel threads, so you will see the build output of both threads at the same time, where the logging of each thread can be identified by the build name. Here's an explanation of the keyword arguments that can be given to `add_build()`:
 
 ### Required arguments:
 - `name` :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs
@@ -87,15 +83,82 @@ If all goes well, running this file as a Python program will build two OS packag
 ### Optional arguments:
 - `build_deps` :: a list of build time dependencies; these are the names of the OS packages that need to be present on the build machine before setting up and building the project
 - `runtime_deps` :: a list of run time dependencies; these names are given to the resulting OS package as dependencies, so that they act as prerequisites when installing the final OS package
-- `fpm_args` :: any extra arguments that are given to FPM (https://github.com/jordansissel/fpm) when the actual package is being built
+- `fpm_args` :: any extra arguments that are given to [fpm](https://github.com/jordansissel/fpm) when the actual package is being built
+- `pip_args` :: any extra arguments that are given to pip when your pip requirements are being installed (a custom index url pointing to your private PyPI repository for example)
 - `working_dir` :: a subdirectory under your source tree that is to be regarded as the base directory; if set, only this directory is packaged, and the pip requirements are tried to be found here. This makes sense when you have a source repository with multiple projects under it.
 - `requirements_path` :: the path to your pip requirements file, relative to your project root; this defaults to `/requirements.txt`
 - `compile_python` :: indicates whether Python should be fetched from python.org, compiled and shipped for you; defaults to True
-- `compile_python_version` :: the version of Python to compile and ship
+- `compile_python_version` :: the version of Python to compile and ship, effective only when the `compile_python` setting is not False; defaults to the latest 2.7.\* version
 - `python_basedir` :: specifies one of two things: 1) where Python can be found (your company might have a prepackaged Python) 2) where vdist should install the compiled Python distribution
+- `profiles_dir` :: the path to your own vdist profiles; defaults to $basedir/buildprofiles
+
+Here's another, more customized example.
+
+```
+from vdist.builder import Builder
+from vdist.source import directory
+
+builder = Builder()
+
+# add CentOS6 build
+builder.add_build(
+    # name of the build
+    name='myproject :: centos6 build',
+
+    # name of the app (used for the package name)
+    app='myproject',
+
+    # the version; you might of course get this value from e.g. a file
+    # or an environment variable set by your CI environment
+    version='1.0',
+
+    # base the build on a directory; this would make sense when executing
+    # vdist in the context of a CI environment
+    source=directory(path='/home/ci/projects/myproject'),
+
+    # use the 'centos6' profile
+    profile='centos6',
+
+    # do not compile Python during packaging, a custom Python interpreter is
+    # already made available on the build machine
+    compile_python=False,
+
+    # the location of your custom Python interpreter as installed by an
+    # OS package
+    python_basedir='/opt/yourcompany/python',
+
+    # depend on an OS package called "yourcompany-python" which would contain
+    # the Python interpreter; these are build dependencies, and are not
+    # runtime dependencies
+    build_deps=['yourcompany-python', 'gcc'],
+
+    # specify OS packages that should be installed when your application is
+    # installed
+    runtime_deps=['yourcompany-python', 'imagemagick', 'ffmpeg'],
+
+    # some extra arguments for fpm, in this case a postinstall script that
+    # will run after your application will be installed (useful for e.g.
+    # startup scripts, supervisor configs, etc.)
+    fpm_args='--post-install deploy/centos6/postinstall.sh',
+
+    # extra arguments to use when your pip requirements file is being installed
+    # by vdist; a URL to your private PyPI server, for example
+    pip_args='--index-url https://pypi.yourcompany.com/simple/',
+
+    # specify a custom directory to point to your vdist build profiles; this is
+    # where the profiles.json and accompanying script templates should be placed
+    profiles_dir='deploy/profiles',
+
+    # find your pip requirements somewhere else instead of the project root
+    requirements_path='deploy/requirements-prod.txt'
+)
+
+builder.build()
+```
+If you look in the vdist examples directory, you will find examples of more use cases.
 
 ## How to customize
-It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create mappings and templates for custom build profiles. First, create a directory called "templates" under your current working directory. In this directory, you place a script called "profiles.json". The profiles.json file might look like this:
+It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create custom build profiles. First, create a directory called "buildprofiles" under your project directory (location can be overridden by setting `profiles_dir`). In this directory, you place a script called "profiles.json". The profiles.json file might look like this:
 
 ```
 {
@@ -110,10 +173,37 @@ It could well be that in your specific case, you need different steps to be take
 }
 ```
 
-In case it's not directly obvious, this configuration file defines 2 profiles: centos6 and debian. Each profile has 2 properties, called `docker_image` and `script`. The `docker_image` key indicates the name of the Docker image which will be pulled from the Docker repo by vdist. The `script` key indicates what script to load on the build machine to actually execute the build process. These scripts are treated as templates, and the build information you provide to vdist will be injected into these templates. You can take a look at vdist's own templates to get an idea of how they work, and how to create your own. They really are simple shell scripts that are treated as templates when a build executes. Custom shell scripts can be put in the templates directory alongside your profiles.json file. All parameters that are given by you when calling `add_build()` are injected into the template.
+This configuration file defines 2 profiles: centos6 and debian. Each profile has 2 properties, called `docker_image` and `script`. The `docker_image` key indicates the name of the Docker image which will be pulled from the Docker repo by vdist. The `script` key indicates what script to load on the build machine to actually execute the build process. These scripts are treated as templates, and the build information you provide to vdist will be injected into these templates. You can take a look at vdist's own templates to get an idea of how they work, and how to create your own. Custom shell scripts can be put in the profiles directory alongside your profiles.json file. All parameters that are given by you when calling `add_build()` are injected into the template. For Debian and CentOS/RHEL/Fedora images, vdist provides two scripts for you: `debian.sh` and `centos.sh`. You can refer to these scripts in your own custom profiles, while using your own Docker images.
 
-## How to contribute
-I would certainly appreciate your help! Issues, feature requests and pull requests are more than welcome. I'm guessing I would need much more effort creating more profiles, but any help is appreciated!
+## Optimizing your build environment
+Using vdist out of the box would work fine if your context isn't all too demanding. When your demands are slightly higher (such as build speeds, continuous builds, etc.), I'd recommend getting a few things into place which can be used effectively in conjunction with vdist:
+- an internal Docker registry; it's easy to set up (through using Docker)
+
+- a private PyPI repository such as pypiserver or devpi;
+
+- a Continuous Integration system such as Jenkins/Bamboo/etc.
+
+- an internal OS package mirror (e.g. an APT or Yum mirror)
+
+vdist would then be used in the final stage of a CI build, where it would fire up a preprovisioned Docker image (that resides on your private Docker registry), build your project, installs your internal modules from your private PyPI repository, and leaves the resulting OS packages as deliveries for your CI system.
+
+To make a "fast" Docker image that can be used with vdist, make sure that:
+
+- it's up to date
+
+- it includes an already compiled Python interpreter (not your system's interpreter, since we prefer not to be dependent on it) that installs in e.g. /opt/yourcompany
+
+- fpm is already installed (`gem install fpm` can take quite a while)
+
+Once you've created a custom Docker image, you can refer to it in your `profiles.json` like you would normally do when using Docker:
+```
+{
+    "my-custom-profile": {
+        "docker_image": "docker-internal.yourcompany.com:5000/yourcompany/yourbuildmachine:latest",
+        "script": "debian.sh"
+    }
+}
+```
 
 ## Questions and Answers
 *Q: Can I use vdist without running my own OS package mirrors, Docker registry and PyPI index?*
@@ -135,3 +225,18 @@ At the moment there is no builtin support for this, although I guess it could be
 *Q: Why didn't you just plug into setuptools/distutils, or an existing build tool like PyBuilder?*
 
 I could have done that, but it seemed that it would get a little messy. Having said that, I'm all ears when people want such a thing.
+
+*Q: Any future plans for vdist?*
+
+I have a few ideas, but I'm also very interested in hearing input for vdist from you. The following features jump to mind for now:
+
+- smoke testing the installation of the resulting OS packages on a fresh Docker image
+
+- the ability to commit a provisioned Docker image during the build run to a Docker registry
+
+- integrating with (for example) PyBuilder
+
+But like I said, I'm all open to ideas.
+
+## How to contribute
+I would certainly appreciate your help! Issues, feature requests and pull requests are more than welcome. I'm guessing I would need much more effort creating more profiles, but any help is appreciated!
