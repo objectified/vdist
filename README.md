@@ -3,10 +3,15 @@
 vdist (Virtualenv Distribute) is a tool that lets you build OS packages from your Python applications, while aiming to build an isolated environment for your Python project by utilizing [virtualenv](https://virtualenv.pypa.io/en/latest/). This means that your application will not depend on OS provided packages of Python modules, including their versions. The idea is largely inspired by [this article](https://hynek.me/articles/python-app-deployment-with-native-packages/), so vdist basically implements the ideas outlined there. 
 
 In short, the following principles are the most important motivation behind vdist:
+
 - OS packages are a good idea; they make sure your application can be rolled out just like any other program, using the same tools (Salt, Ansible, Puppet, etc.)
+
 - never let your application depend on packages provided by your OS
+
 - build time dependencies are not runtime dependencies; no compilers etc. on your target system
+
 - running your internal OS package mirrors and private PyPI repositories is a good idea
+
 
 vdist takes an approach that's slightly different from the implementation examples found in the original article, but it's still very similar.
 
