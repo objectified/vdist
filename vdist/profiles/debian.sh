@@ -39,13 +39,13 @@ cd {{package_build_root}}
 {% if source.type == 'git' %}
 
     git clone {{source.uri}}
-    cd {{basename}}
+    cd {{project_root}}
     git checkout {{source.branch}}
 
 {% elif source.type in ['directory', 'git_directory'] %}
 
-    cp -r {{shared_dir}}/{{scratch_dir}}/{{basename}} .
-    cd {{package_build_root}}/{{basename}}
+    cp -r {{shared_dir}}/{{scratch_dir}}/{{project_root}} .
+    cd {{package_build_root}}/{{project_root}}
 
     {% if source.type == 'git_directory' %}
         git checkout {{source.branch}}
@@ -65,10 +65,11 @@ cd {{package_build_root}}
 
 # when working_dir is set, assume that is the base and remove the rest
 {% if working_dir %}
-    mv {{working_dir}} {{package_build_root}} && rm -rf {{package_build_root}}/{{basename}}
+    mv {{working_dir}} {{package_build_root}} && rm -rf {{package_build_root}}/{{project_root}}
     cd {{package_build_root}}/{{working_dir}}
 
-    {% set basedir = working_dir %}
+    # reset project_root
+    {% set project_root = working_dir %}
 {% endif %}
 
 # brutally remove virtualenv stuff from the current directory
@@ -92,7 +93,7 @@ cd /
 find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
 find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{basedir}} $PYTHON_BASEDIR
+fpm -s dir -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} $PYTHON_BASEDIR
 
 cp {{package_build_root}}/*deb {{shared_dir}}
 

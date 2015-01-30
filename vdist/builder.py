@@ -78,7 +78,7 @@ class Build(object):
     def __str__(self):
         return str(self.__dict__)
 
-    def get_basename_from_source(self):
+    def get_project_root_from_source(self):
         if self.source['type'] == 'git':
             return os.path.basename(self.source['uri'])
         if self.source['type'] in ['directory', 'git_directory']:
@@ -158,7 +158,7 @@ class Builder(object):
         return template.render(
             local_uid=os.getuid(),
             local_gid=os.getgid(),
-            basename=build.get_basename_from_source(),
+            project_root=build.get_project_root_from_source(),
             package_build_root=defaults.PACKAGE_BUILD_ROOT,
             shared_dir=defaults.SHARED_DIR,
             scratch_dir=defaults.SCRATCH_DIR,
