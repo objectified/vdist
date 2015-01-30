@@ -227,6 +227,14 @@ At the moment there is no builtin support for this, although I guess it could be
 
 I could have done that, but it seemed that it would get a little messy. Having said that, I'm all ears when people want such a thing.
 
+*Q: How does vdist compare to [Conda](http://conda.pydata.org)?*
+
+Where vdist builds native OS packages for your target OS, Conda is a package management system. In that sense, Conda and vdist are fundamentally different things.
+
+*Q: How does vdist compare to [Python Wheels](https://wheel.readthedocs.org/en/latest/)?*
+
+If I'm not mistaken, wheels are primarily meant to create binary distributions of Python libraries. They won't necessarily help you with rolling out your applications. Wheels might be fetched from PyPI during a vdist build when available, (which is great, of course).
+
 *Q: Any future plans for vdist?*
 
 I have a few ideas, but I'm also very interested in hearing input for vdist from you. The following features jump to mind for now:
