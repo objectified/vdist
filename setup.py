@@ -10,6 +10,7 @@ setup(
     url='https://github.com/objectified/vdist',
     packages=find_packages(),
     install_requires=['jinja2==2.7.3', 'docker-py==0.7.1'],
+    package_data={'': ['internal_profiles.json']},
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 1 - Alpha',
