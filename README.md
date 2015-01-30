@@ -99,7 +99,7 @@ import os
 from vdist.builder import Builder
 from vdist.source import directory
 
-# instantiate the builder while passing it a custom location for 
+# instantiate the builder while passing it a custom location for
 # your profile definitions
 profiles_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -159,7 +159,7 @@ builder.build()
 If you look in the vdist examples directory, you will find examples of more use cases.
 
 ## How to customize
-It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create custom build profiles. First, create a directory called "buildprofiles" under your project directory (location can be overridden by setting `profiles_dir`). In this directory, you place a script called "profiles.json". The profiles.json file might look like this:
+It could well be that in your specific case, you need different steps to be taken to get to a deployable package. vdist by default is a bit naive: it checks for a requirements.txt and installs it using pip, and it also checks for a setup.py, on which it runs an install when present. Your situation might be a bit different. To solve this, vdist offers the ability to create custom build profiles. First, create a directory called "buildprofiles" under your project directory (location can be overridden by setting the `profiles_dir` argument on the Builder instance). In this directory, you place a script called "profiles.json". The profiles.json file might look like this:
 
 ```
 {

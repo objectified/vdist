@@ -88,7 +88,10 @@ class Build(object):
 
 class Builder(object):
 
-    def __init__(self, profiles_dir=defaults.LOCAL_PROFILES_DIR, machine_logs=True):
+    def __init__(
+            self,
+            profiles_dir=defaults.LOCAL_PROFILES_DIR,
+            machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
                             '[%(threadName)s] %(name)s %(message)s',
                             level=logging.INFO)
