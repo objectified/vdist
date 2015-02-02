@@ -137,8 +137,6 @@ class Builder(object):
             self._add_profiles_from_file(local_profiles)
 
     def _render_template(self, build):
-        template = None
-
         internal_template_dir = os.path.join(
             os.path.dirname(__file__), 'profiles')
 
@@ -155,13 +153,18 @@ class Builder(object):
         template_name = profile.script
         template = env.get_template(template_name)
 
+        scratch_dir = os.path.join(
+            defaults.SHARED_DIR,
+            defaults.SCRATCH_DIR
+        )
+
         return template.render(
             local_uid=os.getuid(),
             local_gid=os.getgid(),
             project_root=build.get_project_root_from_source(),
             package_build_root=defaults.PACKAGE_BUILD_ROOT,
             shared_dir=defaults.SHARED_DIR,
-            scratch_dir=defaults.SCRATCH_DIR,
+            scratch_dir=scratch_dir,
             **build.__dict__
         )
 

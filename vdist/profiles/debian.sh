@@ -44,7 +44,7 @@ cd {{package_build_root}}
 
 {% elif source.type in ['directory', 'git_directory'] %}
 
-    cp -r {{shared_dir}}/{{scratch_dir}}/{{project_root}} .
+    cp -r {{scratch_dir}}/{{project_root}} .
     cd {{package_build_root}}/{{project_root}}
 
     {% if source.type == 'git_directory' %}
@@ -60,7 +60,7 @@ cd {{package_build_root}}
 {% endif %}
 
 {% if use_local_pip_conf %}
-    cp -r /work/scratch/.pip ~
+    cp -r {{scratch_dir}}/.pip ~
 {% endif %}
 
 # when working_dir is set, assume that is the base and remove the rest
