@@ -22,6 +22,7 @@ parts/
 sdist/
 var/
 include/
+local/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -55,3 +56,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# PyCharm
+.idea/
