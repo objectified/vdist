@@ -85,6 +85,15 @@ class Build(object):
             return os.path.basename(self.source['path'])
         return ''
 
+    def get_safe_dirname(self):
+        return re.sub(
+            '[^A-Za-z0-9\.\-]',
+            '_',
+            '-'.join(
+                [self.app, self.version, self.profile]
+            )
+        )
+
 
 class Builder(object):
 
@@ -159,6 +168,8 @@ class Builder(object):
             defaults.SCRATCH_DIR
         )
 
+        # local uid and gid are needed to correctly set permissions
+        # on the created artifacts after the build completes
         return template.render(
             local_uid=os.getuid(),
             local_gid=os.getgid(),
@@ -208,13 +219,7 @@ class Builder(object):
                 )
 
     def _create_build_dir(self, build):
-        subdir_name = re.sub(
-            '[^A-Za-z0-9\.\-]',
-            '_',
-            '-'.join(
-                [build.app, build.version, build.profile]
-            )
-        )
+        subdir_name = build.get_safe_dirname()
 
         build_dir = os.path.join(self.build_basedir, subdir_name)
 
