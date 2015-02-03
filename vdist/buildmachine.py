@@ -12,7 +12,7 @@ class BuildMachine(object):
     def __init__(self, machine_logs=True, image=None, insecure_registry=False):
         self.logger = logging.getLogger('BuildMachine')
 
-        self.dockerclient = docker.Client(**kwargs_from_env())
+        self.dockerclient = docker.Client(version='1.15', **kwargs_from_env())
         self.container = None
 
         self.machine_logs = machine_logs
@@ -38,7 +38,7 @@ class BuildMachine(object):
                 'Image does not exist: %s, pulling from repo..' % self.image)
             self._pull_image(self.image)
 
-        binds = { build_dir: defaults.SHARED_DIR }
+        binds = {build_dir: defaults.SHARED_DIR}
         if extra_binds:
             binds = binds.items() + extra_binds.items()
 
