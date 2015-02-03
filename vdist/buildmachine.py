@@ -27,10 +27,9 @@ class BuildMachine(object):
         return False
 
     def _pull_image(self, image):
-        self.logger.info('are we using an insecure registry? %s' % self.insecure_registry)
-        self.dockerclient.pull(
-            image,
-            insecure_registry=self.insecure_registry)
+        self.logger.info('Insecure registry: %s' % self.insecure_registry)
+
+        self.dockerclient.pull(image, insecure_registry=self.insecure_registry)
 
     def launch(self, build_dir, extra_binds=None):
         if not self._image_exists(self.image):
@@ -51,9 +50,11 @@ class BuildMachine(object):
         self.container = self.dockerclient.create_container(
             image=self.image,
             command=path_to_command)
+
         self.dockerclient.start(
             container=self.container.get('Id'),
             binds=binds)
+
         lines = self.dockerclient.logs(container=self.container.get('Id'),
                                        stdout=True, stderr=True, stream=True)
         for line in lines:
