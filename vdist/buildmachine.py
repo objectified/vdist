@@ -9,10 +9,15 @@ from vdist import defaults
 
 class BuildMachine(object):
 
-    def __init__(self, machine_logs=True, image=None, insecure_registry=False):
+    def __init__(self, machine_logs=True, image=None, insecure_registry=False,
+                 docker_args=None):
         self.logger = logging.getLogger('BuildMachine')
 
-        self.dockerclient = docker.Client(version='1.15', **kwargs_from_env())
+        if docker_args:
+            env_kwargs = kwargs_from_env()
+            env_kwargs.update(docker_args)
+
+        self.dockerclient = docker.Client(**env_kwargs)
         self.container = None
 
         self.machine_logs = machine_logs
