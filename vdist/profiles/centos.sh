@@ -95,7 +95,7 @@ cd /
 find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
 find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-fpm -s dir -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} $PYTHON_BASEDIR
+fpm -s dir -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
 
 cp {{package_build_root}}/*rpm {{shared_dir}}
 
