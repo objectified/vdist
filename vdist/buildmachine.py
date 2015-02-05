@@ -17,7 +17,10 @@ class BuildMachine(object):
             env_kwargs = kwargs_from_env()
             env_kwargs.update(docker_args)
 
-        self.dockerclient = docker.Client(**env_kwargs)
+            self.dockerclient = docker.Client(**env_kwargs)
+        else:
+            self.dockerclient = docker.Client(**kwargs_from_env())
+
         self.container = None
 
         self.machine_logs = machine_logs
