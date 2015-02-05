@@ -68,6 +68,7 @@ builder.add_build(
 
 builder.build()
 ```
+
 If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "myproject". The two builds will be running in parallel threads, so you will see the build output of both threads at the same time, where the logging of each thread can be identified by the build name. Here's an explanation of the keyword arguments that can be given to `add_build()`:
 
 ### Required arguments:
