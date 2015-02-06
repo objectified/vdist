@@ -35,7 +35,29 @@ Inside your project, there are a few basic prerequisites for vdist to work.
 1. Create a requirements.txt ('pip freeze > requirements.txt' inside a virtualenv should give you a good start); you probably already have one
 2. Create a small Python file that actually uses the vdist module
 
-Let's say we create a Python file called package.py, which would contain the following code:
+Here is a minimal example of how to use vdist to create an OS package of "yourapp" for Ubuntu Trusty. Create a file called package.py, which would contain the following code:
+
+```
+from vdist.builder import Builder
+from vdist.source import git
+
+builder = Builder()
+
+builder.add_build(
+    app='yourapp',
+    version='1.0',
+    source=git(
+        uri='https://github.com/you/yourapp',
+        branch='master'
+    ),
+    profile='ubuntu-trusty'
+)
+
+builder.build()
+```
+
+Here's a slightly more advanced example:
+
 ```
 from vdist.builder import Builder
 from vdist.source import git
@@ -72,7 +94,6 @@ builder.build()
 If all goes well, running this file as a Python program will build two OS packages (an RPM for CentOS 6 and a .deb package for Ubuntu Trusty Tahr) for a project called "myproject". The two builds will be running in parallel threads, so you will see the build output of both threads at the same time, where the logging of each thread can be identified by the build name. Here's an explanation of the keyword arguments that can be given to `add_build()`:
 
 ### Required arguments:
-- `name` :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs
 - `app` :: the name of the application to build; this should also equal the project name in Git, and is used as the prefix for the filename of the resulting package
 - `version` :: the version of the application; this is used when building the OS package both in the name and in its meta information
 - `profile` :: the name of the profile to use for this specific build; its value should be a reflection of what gets put in the profiles.json file explained later
@@ -82,6 +103,7 @@ If all goes well, running this file as a Python program will build two OS packag
     * `git_directory(path=path, branch=branch)`: this source type uses a git checkout in a local directory to build the project from; it checks out the supplied branch before building
 
 ### Optional arguments:
+- `name` :: the name of the build; this does not do anything in the build process itself, but is used in e.g. logs; when omitted, the build name is a sanitized combination of the `app`, `version` and `profile` arguments
 - `build_deps` :: a list of build time dependencies; these are the names of the OS packages that need to be present on the build machine before setting up and building the project
 - `runtime_deps` :: a list of run time dependencies; these names are given to the resulting OS package as dependencies, so that they act as prerequisites when installing the final OS package
 - `fpm_args` :: any extra arguments that are given to [fpm](https://github.com/jordansissel/fpm) when the actual package is being built
