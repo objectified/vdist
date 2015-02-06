@@ -24,7 +24,14 @@ def test_buildprofile_insecure_registry_arg():
         script='foo.sh',
         insecure_registry="true"
     )
-    assert m.insecure_registry
+    assert m.insecure_registry is True
+
+    m = BuildProfile(
+        profile_id='some_profile_id',
+        docker_image='some_docker_image',
+        script='foo.sh'
+    )
+    assert m.insecure_registry is False
 
 
 def test_buildprofile_invalid_arg():

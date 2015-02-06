@@ -131,11 +131,10 @@ class Builder(object):
                 profile = BuildProfile(
                     profile_id=profile_id,
                     docker_image=profiles[profile_id]['docker_image'],
-                    script=profiles[profile_id]['script']
+                    script=profiles[profile_id]['script'],
+                    insecure_registry=profiles[profile_id].get(
+                        'insecure_registry', 'false')
                 )
-                if 'insecure_registry' in profiles[profile_id] and \
-                        profiles[profile_id]['insecure_registry'] == 'true':
-                    profile.insecure_registry = True
 
                 self.profiles[profile_id] = profile
 
