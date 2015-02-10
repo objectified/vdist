@@ -1,0 +1,11 @@
+site_name: vdist
+theme: readthedocs
+pages:
+- [index.md, Home]
+- [whatisvdist.md, What is vdist]
+- [howtoinstall.md, How to install]
+- [howtouse.md, How to use]
+- [howtocustomize.md, How to customize]
+- [buildenvironment.md, Optimizing your build environment]
+- [qanda.md, Questions and Answers]
+- [howtocontribute.md, How to contribute]
