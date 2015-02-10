@@ -84,9 +84,9 @@ class Build(object):
 
     def get_project_root_from_source(self):
         if self.source['type'] == 'git':
-            return os.path.basename(self.source['uri'])
+            return os.path.basename(self.source['uri'].rstrip('/'))
         if self.source['type'] in ['directory', 'git_directory']:
-            return os.path.basename(self.source['path'])
+            return os.path.basename(self.source['path'].rstrip('/'))
         return ''
 
     def get_safe_dirname(self):
