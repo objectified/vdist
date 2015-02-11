@@ -260,6 +260,10 @@ class Builder(object):
         self.logger.info('Shutting down build machine: %s' % build.name)
         build_machine.shutdown()
 
+    def get_available_profiles(self):
+        self._load_profiles()
+        return self.profiles
+
     def build(self):
         self._load_profiles()
         self._clean_build_basedir()
