@@ -31,19 +31,19 @@ builder.build()
 
 Running the above would do this:
 
-- set up a Docker machine
+- set up a Docker container running Ubuntu Trusty Tahr
 
-- install the OS packages listed in `build_deps`
+- install the OS packages listed in `build_deps` (only libpq-dev in this case)
 
 - git clone the repository at https://github.com/you/yourapp
 
 - checkout the branch 'release-1.0'
 
-- sets up a virtualenv for the checked out application
+- set up a virtualenv for the checked out application
 
-- installs your application's dependencies from requirements.txt
+- install your application's dependencies from requirements.txt
 
-- wraps the virtualenv in a package called `yourapp-1.0.deb` which includes a dependency on the OS packages listed in `runtime_deps`
+- wrap the virtualenv in a package called `yourapp-1.0.deb` which includes a dependency on the OS packages listed in `runtime_deps`
 
 
 Similarly, the same build for CentOS 6 would look like this.
