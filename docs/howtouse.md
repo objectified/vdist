@@ -24,7 +24,7 @@ builder.add_build(
 builder.build()
 ```
 
-Here's a slightly more advanced example:
+Here is what it does: vdist will build an OS package called 'yourapp-1.0.deb' from a Git repo located at https://github.com/you/yourapp, from branch 'master' using the vdist profile 'ubuntu-trusty' (more on vdist profiles later). While doing so, it will download and compile a Python interpreter, set up a virtualenv for your application, and installs your application's dependencies into the virtualenv. The whole resulting virtualenv will be wrapped up in a package, and is the end result of the build run. Here's an example creating a build for two OS flavors at the same time:
 
 ```
 from vdist.builder import Builder

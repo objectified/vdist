@@ -16,6 +16,8 @@ To make a "fast" Docker image that can be used with vdist, make sure that:
 
 - it includes an already compiled Python interpreter (not your system's interpreter, since we prefer not to be dependent on it) that installs in e.g. /opt/yourcompany
 
+- it already includes your build time dependencies (which does not mean you should leave them out of the `build_deps` parameter)
+ 
 - fpm is already installed (`gem install fpm` can take quite a while)
 
 Once you've created a custom Docker image, you can refer to it in your `profiles.json` like you would normally do when using Docker:
