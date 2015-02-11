@@ -41,7 +41,7 @@ Running the above would do this:
 
 - set up a virtualenv for the checked out application
 
-- install your application's dependencies from requirements.txt
+- install your application's dependencies from requirements.txt if found in the checked out branch
 
 - wrap the virtualenv in a package called `yourapp-1.0.deb` which includes a dependency on the OS packages listed in `runtime_deps`
 
