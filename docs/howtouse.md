@@ -151,3 +151,36 @@ builder.build()
 ```
 If you look in the [vdist examples directory](https://github.com/objectified/vdist/tree/master/examples), you will find examples of more use cases.
 
+There are cases where you want to influence the way vdist behaves in your environment. This can be done by passing additional parameters to the vdist Builder constructor. Here's an example:
+
+```
+import os
+
+from vdist.builder import Builder
+from vdist.source import git
+
+profiles_dir = os.path.join(os.path.dirname(__file__), 'myprofiles')
+
+builder = Builder(
+    profiles_dir=profiles_dir, 
+    machine_logs=False,
+    docker_opts={'version': '1.15'}
+)
+
+builder.add_build(
+    app='myapp',
+    version='1.0',
+    source=git(uri=https://github.com/foo/bar', branch='myrelease'),
+    profile='ubuntu-trusty'
+)
+
+builder.build()
+```
+
+In the above example, three things are customized for this build run:
+
+1. vdist looks at a different directory for finding your custom profiles
+
+2. the logging of what happens on the Docker image is turned off
+ 
+3. custom options for Docker are passed through the `docker_opts` keyword argument; in this case, we've explicitly pinned the API version to '1.15' to let vdist work with older versions of the Docker daemon/API. This argument receives anything that the [docker-py Client](https://github.com/docker/docker-py) receives in the form of a Python dictionary.
