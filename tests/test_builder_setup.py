@@ -8,3 +8,15 @@ def test_builder_nobuilds():
 
     with pytest.raises(NoBuildsFoundException):
         b.build()
+
+
+def test_internal_profile_loads():
+    b = Builder()
+
+    profiles = b.get_available_profiles()
+
+    internal_profile_ids = ['ubuntu-trusty', 'centos6', 'debian-wheezy']
+    print profiles
+
+    for profile_id in internal_profile_ids:
+        assert profile_id in profiles
