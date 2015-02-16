@@ -162,15 +162,15 @@ from vdist.source import git
 profiles_dir = os.path.join(os.path.dirname(__file__), 'myprofiles')
 
 builder = Builder(
-    profiles_dir=profiles_dir, 
+    profiles_dir=profiles_dir,
     machine_logs=False,
     docker_opts={'version': '1.15'}
 )
 
 builder.add_build(
     app='myapp',
+    source=git(uri='https://github.com/foo/myproject', branch='myrelease'),
     version='1.0',
-    source=git(uri=https://github.com/foo/bar', branch='myrelease'),
     profile='ubuntu-trusty'
 )
 
