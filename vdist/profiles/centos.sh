@@ -37,6 +37,10 @@ easy_install virtualenv
 
 {% endif %}
 
+if [ ! -d {{package_build_root}} ]; then
+    mkdir -p {{package_build_root}}
+fi
+
 cd {{package_build_root}}
 
 {% if source.type == 'git' %}

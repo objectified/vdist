@@ -48,6 +48,7 @@ class Build(object):
     def __init__(self, app, version, source, profile,
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, fpm_args='', pip_args='',
+                 package_build_root=defaults.PACKAGE_BUILD_ROOT,
                  working_dir='', python_basedir=defaults.PYTHON_BASEDIR,
                  compile_python=True,
                  compile_python_version=defaults.PYTHON_VERSION,
@@ -56,6 +57,7 @@ class Build(object):
         self.version = version
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
+        self.package_build_root = package_build_root
         self.working_dir = working_dir
         self.requirements_path = requirements_path
         self.python_basedir = python_basedir
@@ -177,7 +179,6 @@ class Builder(object):
             local_uid=os.getuid(),
             local_gid=os.getgid(),
             project_root=build.get_project_root_from_source(),
-            package_build_root=defaults.PACKAGE_BUILD_ROOT,
             shared_dir=defaults.SHARED_DIR,
             scratch_dir=scratch_dir,
             **build.__dict__

@@ -34,6 +34,10 @@ apt-get install -y {{build_deps|join(' ')}}
 
 {% endif %}
 
+if [ ! -d {{package_build_root}} ]; then
+    mkdir -p {{package_build_root}}
+fi
+
 cd {{package_build_root}}
 
 {% if source.type == 'git' %}
