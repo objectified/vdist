@@ -218,7 +218,7 @@ class Builder(object):
             else:
                 subdir = os.path.basename(build.source['path'])
                 shutil.copytree(
-                    build.source['path'],
+                    build.source['path'].rstrip('/'),
                     os.path.join(scratch_dir, subdir)
                 )
 
