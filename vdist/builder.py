@@ -284,6 +284,9 @@ class Builder(object):
             threads.append(t)
             t.start()
 
+        for t in threads:
+            t.join()
+
 
 class BuildProfileNotFoundException(Exception):
     pass
