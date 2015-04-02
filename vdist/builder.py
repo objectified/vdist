@@ -47,7 +47,8 @@ class Build(object):
 
     def __init__(self, app, version, source, profile,
                  name=None, use_local_pip_conf=False, build_deps=None,
-                 runtime_deps=None, fpm_args='', pip_args='',
+                 runtime_deps=None, custom_filename=None,
+                 fpm_args='', pip_args='',
                  package_build_root=defaults.PACKAGE_BUILD_ROOT,
                  working_dir='', python_basedir=defaults.PYTHON_BASEDIR,
                  compile_python=True,
@@ -63,6 +64,10 @@ class Build(object):
         self.python_basedir = python_basedir
         self.compile_python = compile_python
         self.compile_python_version = compile_python_version
+        if custom_filename:
+            self.custom_filename = custom_filename.format(**os.environ)
+        else:
+            self.custom_filename = None
 
         self.build_deps = []
         if build_deps:

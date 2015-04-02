@@ -144,7 +144,11 @@ builder.add_build(
     pip_args='--index-url https://pypi.yourcompany.com/simple/',
 
     # find your pip requirements somewhere else instead of the project root
-    requirements_path='deploy/requirements-prod.txt'
+    requirements_path='deploy/requirements-prod.txt',
+    
+    # specify a custom filename, including the values of environment variables
+    # to build up the filename; these can be set by e.g. a CI system
+    custom_filename='myapp-{GIT_TAG}-{CI_BUILD_NO}-{RELEASE_NAME}.deb'
 )
 
 builder.build()
