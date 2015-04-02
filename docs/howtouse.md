@@ -83,6 +83,7 @@ If all goes well, running this file as a Python program will build two OS packag
 - `compile_python` :: indicates whether Python should be fetched from python.org, compiled and shipped for you; defaults to True
 - `compile_python_version` :: the version of Python to compile and ship, effective only when the `compile_python` setting is not False; defaults to the latest 2.7.\* version
 - `python_basedir` :: specifies one of two things: 1) where Python can be found (your company might have a prepackaged Python) 2) where vdist should install the compiled Python distribution
+- `custom_filename` :: specifies a custom filename to use when generating the OS package; within this filename, references to environment variables may be used when put in between curly braces (e.g. `foo-{ENV_VAR_ONE}-bar-{ENV_VAR_TWO}.deb`); this is useful when for example your CI system passes values such as the build number and so on.
 
 Here's another, more customized example.
 
