@@ -55,7 +55,7 @@ class Build(object):
                  compile_python_version=defaults.PYTHON_VERSION,
                  requirements_path='/requirements.txt'):
         self.app = app
-        self.version = version
+        self.version = version.format(**os.environ)
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
         self.package_build_root = package_build_root
