@@ -58,12 +58,12 @@ class Build(object):
         self.version = version.format(**os.environ)
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
-        self.package_build_root = package_build_root
-        self.working_dir = working_dir
-        self.requirements_path = requirements_path
-        self.python_basedir = python_basedir
+        self.package_build_root = package_build_root.format(**os.environ)
+        self.working_dir = working_dir.format(**os.environ)
+        self.requirements_path = requirements_path.format(**os.environ)
+        self.python_basedir = python_basedir.format(**os.environ)
         self.compile_python = compile_python
-        self.compile_python_version = compile_python_version
+        self.compile_python_version = compile_python_version.format(**os.environ)
         if custom_filename:
             self.custom_filename = custom_filename.format(**os.environ)
         else:
@@ -78,8 +78,8 @@ class Build(object):
             self.runtime_deps = runtime_deps
 
         self.profile = profile
-        self.fpm_args = fpm_args
-        self.pip_args = pip_args
+        self.fpm_args = fpm_args.format(**os.environ)
+        self.pip_args = pip_args.format(**os.environ)
 
         if not name:
             self.name = self.get_safe_dirname()
