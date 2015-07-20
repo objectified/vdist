@@ -1,8 +1,7 @@
 import logging
 import os
-
-import docker
-from docker.utils import kwargs_from_env
+import subprocess
+import sys
 
 from vdist import defaults
 
@@ -10,41 +9,45 @@ from vdist import defaults
 class BuildMachine(object):
 
     def __init__(self, machine_logs=True, image=None, insecure_registry=False,
-                 docker_args=None):
+                 docker_cli='docker', docker_args=None):
         self.logger = logging.getLogger('BuildMachine')
-
-        if docker_args:
-            env_kwargs = kwargs_from_env()
-            env_kwargs.update(docker_args)
-
-            self.dockerclient = docker.Client(**env_kwargs)
-        else:
-            self.dockerclient = docker.Client(**kwargs_from_env())
-
-        self.container = None
 
         self.machine_logs = machine_logs
         self.image = image
 
+        self.container_id = None
+
+        self.docker_cli = docker_cli
+
         self.insecure_registry = insecure_registry
 
-    def _image_exists(self, image):
-        for img in self.dockerclient.images():
-            if image in img['RepoTags']:
-                return True
-        return False
+    def _run_cli(self, cmd):
+        self.logger.info('Running command: "%s"' % cmd)
+        p = subprocess.Popen(
+            cmd,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        first_line = None
+        for line in iter(p.stdout.readline, b''):
+            line = line.strip()
+            if not first_line:
+                first_line = line
 
-    def _pull_image(self, image):
-        self.logger.info('Insecure registry: %s' % self.insecure_registry)
+            self.logger.info(line)
 
-        self.dockerclient.pull(image, insecure_registry=self.insecure_registry)
+        p.stdout.close()
+        p.wait()
+
+        return first_line
+
+    def _binds_to_shell_volumes(self, binds):
+        vol_list = ['-v %s:%s' % (k, v) for k, v in binds.iteritems()]
+        return ' '.join(vol_list)
 
     def launch(self, build_dir, extra_binds=None):
-        if not self._image_exists(self.image):
-            self.logger.info(
-                'Image does not exist: %s, pulling from repo..' % self.image)
-            self._pull_image(self.image)
-
         binds = {build_dir: defaults.SHARED_DIR}
         if extra_binds:
             binds = binds.items() + extra_binds.items()
@@ -55,20 +58,17 @@ class BuildMachine(object):
             defaults.SCRATCH_BUILDSCRIPT_NAME
         )
         self.logger.info('Starting container: %s' % self.image)
-        self.container = self.dockerclient.create_container(
-            image=self.image,
-            command=path_to_command)
+        self.container_id = self._run_cli('%s run -d -ti %s %s' % \
+                (self.docker_cli,
+                 self._binds_to_shell_volumes(binds),
+                 self.image))
 
-        self.dockerclient.start(
-            container=self.container.get('Id'),
-            binds=binds)
-
-        lines = self.dockerclient.logs(container=self.container.get('Id'),
-                                       stdout=True, stderr=True, stream=True)
-        for line in lines:
-            if self.machine_logs:
-                self.logger.info(line.strip())
+        self._run_cli('%s exec %s %s' % \
+                (self.docker_cli, self.container_id, path_to_command))
 
     def shutdown(self):
-        self.dockerclient.stop(container=self.container.get('Id'))
-        self.dockerclient.remove_container(container=self.container.get('Id'))
+        self.logger.info('Stopping container: %s' % self.container_id)
+        self._run_cli('%s stop %s' % (self.docker_cli, self.container_id))
+
+        self.logger.info('Removing container: %s' % self.container_id)
+        self._run_cli('%s rm -f %s' % (self.docker_cli, self.container_id))

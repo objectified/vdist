@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='vdist',
-    version='0.3.5',
+    version='0.3.6',
     description='Create OS packages from Python projects using Docker containers',
     long_description='Create OS packages from Python projects using Docker containers',
     author='L. Brouwer',
@@ -10,7 +10,7 @@ setup(
     license='MIT',
     url='https://github.com/objectified/vdist',
     packages=find_packages(),
-    install_requires=['jinja2==2.7.3', 'docker-py==0.7.2'],
+    install_requires=['jinja2==2.7.3'],
     package_data={'': ['internal_profiles.json', '*.sh']},
     tests_require=['pytest'],
     classifiers=[
