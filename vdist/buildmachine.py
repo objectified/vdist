@@ -58,7 +58,7 @@ class BuildMachine(object):
             defaults.SCRATCH_BUILDSCRIPT_NAME
         )
         self.logger.info('Starting container: %s' % self.image)
-        self.container_id = self._run_cli('%s run -d -ti %s %s' % \
+        self.container_id = self._run_cli('%s run -d -ti %s %s bash' % \
                 (self.docker_cli,
                  self._binds_to_shell_volumes(binds),
                  self.image))
