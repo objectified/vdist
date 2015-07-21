@@ -3,7 +3,10 @@ def git(uri=None, branch='master'):
 
 
 def directory(path=None):
+    path = path.rstrip('/')
     return dict(type='directory', path=path)
 
+
 def git_directory(path=None, branch='master'):
+    path = path.rstrip('/')
     return dict(type='git_directory', path=path, branch=branch)
