@@ -168,8 +168,7 @@ profiles_dir = os.path.join(os.path.dirname(__file__), 'myprofiles')
 
 builder = Builder(
     profiles_dir=profiles_dir,
-    machine_logs=False,
-    docker_opts={'version': '1.15'}
+    machine_logs=False
 )
 
 builder.add_build(
@@ -182,10 +181,8 @@ builder.add_build(
 builder.build()
 ```
 
-In the above example, three things are customized for this build run:
+In the above example, two things are customized for this build run:
 
 1. vdist looks at a different directory for finding your custom profiles
 
 2. the logging of what happens on the Docker image is turned off
- 
-3. custom options for Docker are passed through the `docker_opts` keyword argument; in this case, we've explicitly pinned the API version to '1.15' to let vdist work with older versions of the Docker daemon/API. This argument receives anything that the [docker-py Client](https://github.com/docker/docker-py) receives in the form of a Python dictionary.

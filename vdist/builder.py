@@ -111,7 +111,7 @@ class Builder(object):
     def __init__(
             self,
             profiles_dir=defaults.LOCAL_PROFILES_DIR,
-            machine_logs=True, docker_args=None):
+            machine_logs=True):
         logging.basicConfig(format='%(asctime)s %(levelname)s '
                             '[%(threadName)s] %(name)s %(message)s',
                             level=logging.INFO)
@@ -123,7 +123,6 @@ class Builder(object):
 
         self.machine_logs = machine_logs
         self.local_profiles_dir = profiles_dir
-        self.docker_args = docker_args
 
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
@@ -260,8 +259,7 @@ class Builder(object):
         build_machine = BuildMachine(
             machine_logs=self.machine_logs,
             image=profile.docker_image,
-            insecure_registry=profile.insecure_registry,
-            docker_args=self.docker_args
+            insecure_registry=profile.insecure_registry
         )
 
         self.logger.info('Running build machine for: %s' % build.name)

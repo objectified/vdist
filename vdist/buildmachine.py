@@ -9,7 +9,7 @@ from vdist import defaults
 class BuildMachine(object):
 
     def __init__(self, machine_logs=True, image=None, insecure_registry=False,
-                 docker_cli='docker', docker_args=None):
+                 docker_cli='docker'):
         self.logger = logging.getLogger('BuildMachine')
 
         self.machine_logs = machine_logs
