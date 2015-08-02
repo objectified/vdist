@@ -117,9 +117,7 @@ class Builder(object):
                             level=logging.INFO)
         self.logger = logging.getLogger('Builder')
 
-        self.build_basedir = os.path.join(
-            os.getcwd(),
-            defaults.BUILD_BASEDIR)
+        self.build_basedir = defaults.BUILD_BASEDIR
         self.profiles = {}
         self.builds = []
 
@@ -129,6 +127,12 @@ class Builder(object):
 
     def add_build(self, **kwargs):
         self.builds.append(Build(**kwargs))
+
+    def _create_vdist_dir(self):
+        vdist_path = os.path.join(os.path.expanduser('~'), '.vdist')
+        if not os.path.exists(vdist_path):
+            self.logger.info('Creating: %s' % vdist_path)
+            os.mkdir(vdist_path)
 
     def _add_profiles_from_file(self, config_file):
         with open(config_file) as f:
@@ -266,11 +270,14 @@ class Builder(object):
         self.logger.info('Shutting down build machine: %s' % build.name)
         build_machine.shutdown()
 
+        self.logger.info('*** Resulting OS packages are in: %s ***' % build_dir)
+
     def get_available_profiles(self):
         self._load_profiles()
         return self.profiles
 
     def build(self):
+        self._create_vdist_dir()
         self._load_profiles()
         self._clean_build_basedir()
         self._create_build_basedir()
