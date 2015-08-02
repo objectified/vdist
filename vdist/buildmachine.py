@@ -43,7 +43,7 @@ class BuildMachine(object):
             if not first_line:
                 first_line = line
 
-            self.logger.error(line)
+            self.logger.info(line)
 
         p.stdout.close()
         p.stderr.close()
