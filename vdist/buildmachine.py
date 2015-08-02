@@ -38,7 +38,15 @@ class BuildMachine(object):
 
             self.logger.info(line)
 
+        for line in iter(p.stderr.readline, b''):
+            line = line.strip()
+            if not first_line:
+                first_line = line
+
+            self.logger.error(line)
+
         p.stdout.close()
+        p.stderr.close()
         p.wait()
 
         return first_line
