@@ -19,9 +19,10 @@ def test_generate_deb_from_git():
     )
     builder.build()
 
-    cwd = os.getcwd()
+    homedir = os.path.expanduser('~')
     target_file = os.path.join(
-        cwd,
+        homedir,
+        '.vdist',
         'dist',
         'vdist-test-generate-deb-from-git-1.0-ubuntu-trusty',
         'vdist-test-generate-deb-from-git_1.0_amd64.deb'
@@ -52,9 +53,10 @@ def test_generate_deb_from_git_directory():
     )
     builder.build()
 
-    cwd = os.getcwd()
+    homedir = os.path.expanduser('~')
     target_file = os.path.join(
-        cwd,
+        homedir,
+        '.vdist',
         'dist',
         'vdist-test-generate-deb-from-git-dir-1.0-ubuntu-trusty',
         'vdist-test-generate-deb-from-git-dir_1.0_amd64.deb'
@@ -84,9 +86,10 @@ def test_generate_deb_from_directory():
     )
     builder.build()
 
-    cwd = os.getcwd()
+    homedir = os.path.expanduser('~')
     target_file = os.path.join(
-        cwd,
+        homedir,
+        '.vdist',
         'dist',
         'vdist-test-generate-deb-from-dir-1.0-ubuntu-trusty',
         'vdist-test-generate-deb-from-dir_1.0_amd64.deb'
