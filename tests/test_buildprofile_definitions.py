@@ -5,7 +5,7 @@ from vdist.builder import BuildProfile
 
 def test_buildprofile_invalid_required_args():
     with pytest.raises(AttributeError):
-        m = BuildProfile()
+        BuildProfile()
 
 
 def test_buildprofile_valid_required_args():
@@ -36,7 +36,7 @@ def test_buildprofile_insecure_registry_arg():
 
 def test_buildprofile_invalid_arg():
     with pytest.raises(AttributeError):
-        m = BuildProfile(
+        BuildProfile(
             profile_id='some_profile_id',
             docker_image='some_docker_image',
             script='foo.sh',

@@ -3,8 +3,10 @@ from setuptools import setup, find_packages
 setup(
     name='vdist',
     version='0.4',
-    description='Create OS packages from Python projects using Docker containers',
-    long_description='Create OS packages from Python projects using Docker containers',
+    description='Create OS packages from Python '
+                'projects using Docker containers',
+    long_description='Create OS packages from Python '
+                     'projects using Docker containers',
     author='L. Brouwer',
     author_email='objectified@gmail.com',
     license='MIT',

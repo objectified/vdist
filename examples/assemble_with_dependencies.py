@@ -17,7 +17,8 @@ builder.add_build(
     # These packages will be made dependencies of the resulting OS package
     runtime_deps=['ffmpeg', 'imagemagick'],
     # tell vdist that on the machine that is used for building this project,
-    # we will need the OS packages "libimagemagick-dev" and "libmysqlclient-dev"
+    # we will need the OS packages "libimagemagick-dev" and
+    # "libmysqlclient-dev"
     # before we start building
     build_deps=['libimagemagick-dev', 'libmysqlclient-dev']
 )

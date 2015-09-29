@@ -1,7 +1,6 @@
 import logging
 import os
 import subprocess
-import sys
 
 from vdist import defaults
 
@@ -66,13 +65,15 @@ class BuildMachine(object):
             defaults.SCRATCH_BUILDSCRIPT_NAME
         )
         self.logger.info('Starting container: %s' % self.image)
-        self.container_id = self._run_cli('%s run -d -ti %s %s bash' % \
-                (self.docker_cli,
-                 self._binds_to_shell_volumes(binds),
-                 self.image))
+        self.container_id = self._run_cli(
+            '%s run -d -ti %s %s bash' %
+            (self.docker_cli,
+             self._binds_to_shell_volumes(binds),
+             self.image))
 
-        self._run_cli('%s exec %s %s' % \
-                (self.docker_cli, self.container_id, path_to_command))
+        self._run_cli(
+            '%s exec %s %s' %
+            (self.docker_cli, self.container_id, path_to_command))
 
     def shutdown(self):
         self.logger.info('Stopping container: %s' % self.container_id)

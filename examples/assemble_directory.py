@@ -14,7 +14,7 @@ builder.add_build(
     profile='centos6'
 )
 
-# or, build from a git repo *inside* a local directory 
+# or, build from a git repo *inside* a local directory
 builder.add_build(
     name='my directory based build',
     app='myproject',

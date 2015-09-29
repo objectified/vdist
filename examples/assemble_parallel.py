@@ -39,6 +39,6 @@ builder.add_build(
     profile='ubuntu-trusty'
 )
 
-# vdist will now build them all in parallel 
+# vdist will now build them all in parallel
 # on separate docker containers
 builder.build()
