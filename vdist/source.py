@@ -1,4 +1,6 @@
 def git(uri=None, branch='master'):
+    if uri.endswith('.git'):
+        uri = uri[:-4]
     return dict(type='git', uri=uri, branch=branch)
 
 

@@ -16,6 +16,20 @@ def test_build_projectroot_from_uri():
     assert build.get_project_root_from_source() == 'vdist'
 
 
+def test_build_projectroot_from_uri_git_suffix():
+    build = Build(
+        name='my build',
+        app='myapp',
+        version='1.0',
+        source=git(
+            uri='https://github.com/objectified/vdist.git',
+            branch='release-1.0'
+        ),
+        profile='ubuntu-trusty'
+    )
+    assert build.get_project_root_from_source() == 'vdist'
+
+
 def test_build_projectroot_from_directory():
     build = Build(
         name='my build',
