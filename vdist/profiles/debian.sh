@@ -29,7 +29,7 @@ apt-get install -y {{build_deps|join(' ')}}
     curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
     tar xzvf Python-$PYTHON_VERSION.tgz
     cd Python-$PYTHON_VERSION
-    ./configure --prefix=$PYTHON_BASEDIR
+    ./configure --prefix=$PYTHON_BASEDIR --with-ensurepip=install
     make && make install
 
 {% endif %}
@@ -79,16 +79,26 @@ cd {{package_build_root}}
 # brutally remove virtualenv stuff from the current directory
 rm -rf bin include lib local
 
-virtualenv -p $PYTHON_BASEDIR/bin/python .
+if [[ ${PYTHON_VERSION:0:1} == "2" ]]; then
+    PYTHON_BIN="$PYTHON_BASEDIR/bin/python"
+    PIP_BIN="$PYTHON_BASEDIR/bin/pip"
+else
+    PYTHON_BIN="$PYTHON_BASEDIR/bin/python3"
+    PIP_BIN="$PYTHON_BASEDIR/bin/pip3"
+fi
+
+$PIP_BIN install -U pip setuptools
+
+virtualenv -p $PYTHON_BIN .
 
 source bin/activate
 
 if [ -f "$PWD{{requirements_path}}" ]; then
-    pip install {{pip_args}} -r $PWD{{requirements_path}}
+    $PIP_BIN install {{pip_args}} -r $PWD{{requirements_path}}
 fi
 
 if [ -f "setup.py" ]; then
-    python setup.py install
+    $PYTHON_BIN setup.py install
 fi
 
 cd /
