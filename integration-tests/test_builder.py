@@ -49,8 +49,8 @@ def test_generate_deb_from_git_suffixed():
         homedir,
         '.vdist',
         'dist',
-        'vdist-test-generate-deb-from-git-1.0-ubuntu-trusty',
-        'vdist-test-generate-deb-from-git_1.0_amd64.deb'
+        'vdist-test-generate-deb-from-git-suffixed-1.0-ubuntu-trusty',
+        'vdist-test-generate-deb-from-git-suffixed_1.0_amd64.deb'
     )
     assert os.path.isfile(target_file)
     assert os.path.getsize(target_file) > 0
