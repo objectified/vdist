@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='vdist',
-    version='0.4',
+    version='0.5',
     description='Create OS packages from Python '
                 'projects using Docker containers',
     long_description='Create OS packages from Python '
