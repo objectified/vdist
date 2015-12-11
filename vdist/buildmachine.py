@@ -32,14 +32,14 @@ class BuildMachine(object):
         )
         first_line = None
         for line in iter(p.stdout.readline, b''):
-            line = line.strip()
+            line = str(line.decode("UTF-8")).strip()
             if not first_line:
                 first_line = line
 
             self.logger.info(line)
 
         for line in iter(p.stderr.readline, b''):
-            line = line.strip()
+            line = str(line.decode("UTF-8")).strip()
             if not first_line:
                 first_line = line
 
