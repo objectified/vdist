@@ -1,3 +1,4 @@
+import itertools
 import logging
 import os
 import subprocess
@@ -50,14 +51,22 @@ class BuildMachine(object):
 
         return first_line
 
-    def _binds_to_shell_volumes(self, binds):
-        vol_list = ['-v %s:%s' % (k, v) for k, v in binds.iteritems()]
+    @staticmethod
+    def _binds_to_shell_volumes(binds):
+        if defaults.PYTHON3_INTERPRETER:
+            vol_list = ['-v %s:%s' % (k, v) for k, v in binds.items()]
+        else:
+            vol_list = ['-v %s:%s' % (k, v) for k, v in binds.iteritems()]
         return ' '.join(vol_list)
 
     def launch(self, build_dir, extra_binds=None):
         binds = {build_dir: defaults.SHARED_DIR}
         if extra_binds:
-            binds = binds.items() + extra_binds.items()
+            if defaults.PYTHON3_INTERPRETER:
+                binds = list(itertools.chain(binds.items(),
+                                             extra_binds.items()))
+            else:
+                binds = binds.items() + extra_binds.items()
 
         path_to_command = os.path.join(
             defaults.SHARED_DIR,
