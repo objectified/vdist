@@ -199,7 +199,8 @@ class Builder(object):
     def _create_build_basedir(self):
         os.mkdir(self.build_basedir)
 
-    def _write_build_script(self, path, script):
+    @staticmethod
+    def _write_build_script(path, script):
         with open(path, 'w+') as f:
             f.write(script)
         os.chmod(path, 0o777)
