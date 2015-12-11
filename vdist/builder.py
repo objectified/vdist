@@ -45,7 +45,7 @@ class BuildProfile(object):
 
 class Build(object):
 
-    def __init__(self, app, version, source, profile,
+    def __init__(self, app, version, source, profile, source_type="dir",
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, custom_filename=None,
                  fpm_args='', pip_args='',
@@ -57,6 +57,7 @@ class Build(object):
         self.app = app
         self.version = version.format(**os.environ)
         self.source = source
+        self.source_type = source_type
         self.use_local_pip_conf = use_local_pip_conf
         self.package_build_root = package_build_root.format(**os.environ)
         self.working_dir = working_dir.format(**os.environ)

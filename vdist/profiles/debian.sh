@@ -108,9 +108,9 @@ find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
 find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
 {% if custom_filename %}
-    fpm -s dir -t deb -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    fpm -s {{source_type}} -t deb -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
 {% else %}
-    fpm -s dir -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    fpm -s {{source_type}} -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
 {% endif %}
 
 cp {{package_build_root}}/*deb {{shared_dir}}
