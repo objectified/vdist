@@ -30,25 +30,24 @@ class BuildMachine(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        first_line = None
-        for line in iter(p.stdout.readline, b''):
-            line = str(line.decode("UTF-8")).strip()
-            if not first_line:
-                first_line = line
 
-            self.logger.info(line)
-
-        for line in iter(p.stderr.readline, b''):
-            line = str(line.decode("UTF-8")).strip()
-            if not first_line:
-                first_line = line
-
-            self.logger.info(line)
+        media = [p.stdout, p.stderr]
+        first_line = self._read_from_media(media)
 
         p.stdout.close()
         p.stderr.close()
         p.wait()
 
+        return first_line
+
+    def _read_from_media(self, media):
+        first_line = None
+        for input_to_read in media:
+            for line in iter(input_to_read.readline, b''):
+                line = str(line.decode("UTF-8")).strip()
+                if not first_line:
+                    first_line = line
+                self.logger.info(line)
         return first_line
 
     @staticmethod
