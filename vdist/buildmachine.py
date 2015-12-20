@@ -61,12 +61,7 @@ class BuildMachine(object):
     def launch(self, build_dir, extra_binds=None):
         binds = {build_dir: defaults.SHARED_DIR}
         if extra_binds:
-            if defaults.PYTHON3_INTERPRETER:
-                binds = list(itertools.chain(binds.items(),
-                                             extra_binds.items()))
-            else:
-                binds = binds.items() + extra_binds.items()
-
+            binds = list(itertools.chain(binds.items(), extra_binds.items()))
         path_to_command = os.path.join(
             defaults.SHARED_DIR,
             defaults.SCRATCH_DIR,
