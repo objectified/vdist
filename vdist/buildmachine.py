@@ -1,3 +1,4 @@
+import itertools
 import logging
 import os
 import subprocess
@@ -29,20 +30,9 @@ class BuildMachine(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        first_line = None
-        for line in iter(p.stdout.readline, b''):
-            line = line.strip()
-            if not first_line:
-                first_line = line
 
-            self.logger.info(line)
-
-        for line in iter(p.stderr.readline, b''):
-            line = line.strip()
-            if not first_line:
-                first_line = line
-
-            self.logger.info(line)
+        media = [p.stdout, p.stderr]
+        first_line = self._read_from_media(media)
 
         p.stdout.close()
         p.stderr.close()
@@ -50,15 +40,28 @@ class BuildMachine(object):
 
         return first_line
 
-    def _binds_to_shell_volumes(self, binds):
-        vol_list = ['-v %s:%s' % (k, v) for k, v in binds.iteritems()]
+    def _read_from_media(self, media):
+        first_line = None
+        for input_to_read in media:
+            for line in iter(input_to_read.readline, b''):
+                line = str(line.decode("UTF-8")).strip()
+                if not first_line:
+                    first_line = line
+                self.logger.info(line)
+        return first_line
+
+    @staticmethod
+    def _binds_to_shell_volumes(binds):
+        if defaults.PYTHON3_INTERPRETER:
+            vol_list = ['-v %s:%s' % (k, v) for k, v in binds.items()]
+        else:
+            vol_list = ['-v %s:%s' % (k, v) for k, v in binds.iteritems()]
         return ' '.join(vol_list)
 
     def launch(self, build_dir, extra_binds=None):
         binds = {build_dir: defaults.SHARED_DIR}
         if extra_binds:
-            binds = binds.items() + extra_binds.items()
-
+            binds = list(itertools.chain(binds.items(), extra_binds.items()))
         path_to_command = os.path.join(
             defaults.SHARED_DIR,
             defaults.SCRATCH_DIR,

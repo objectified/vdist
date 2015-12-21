@@ -1,4 +1,5 @@
 import os
+import sys
 
 PYTHON_BASEDIR = '/opt/vdist-python'
 PYTHON_VERSION = '2.7.9'
@@ -10,3 +11,5 @@ SCRATCH_BUILDSCRIPT_NAME = 'buildscript.sh'
 SCRATCH_DIR = 'scratch'
 SHARED_DIR = '/work'
 PACKAGE_BUILD_ROOT = '/opt'
+
+PYTHON3_INTERPRETER = True if sys.version_info[0] == 3 else False
