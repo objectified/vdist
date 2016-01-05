@@ -74,6 +74,7 @@ class Build(object):
             elif packaging_type == "setup":
                 python_basedir = "/".join([defaults.PYTHON_BASEDIR, app])
         self.python_basedir = python_basedir.format(**os.environ)
+        # TODO: Tests what happens if user sets compile_python False.
         self.compile_python = compile_python
         self.compile_python_version = compile_python_version.format(**os.environ)
         if custom_filename:
