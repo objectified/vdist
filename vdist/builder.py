@@ -45,23 +45,34 @@ class BuildProfile(object):
 
 class Build(object):
 
-    def __init__(self, app, version, source, profile, source_type="dir",
+    def __init__(self, app, version, source, profile, packaging_type="dir",
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, custom_filename=None,
                  fpm_args='', pip_args='',
-                 package_build_root=defaults.PACKAGE_BUILD_ROOT,
-                 working_dir='', python_basedir=defaults.PYTHON_BASEDIR,
+                 package_build_root=None,
+                 working_dir='', python_basedir=None,
                  compile_python=True,
                  compile_python_version=defaults.PYTHON_VERSION,
                  requirements_path='/requirements.txt'):
         self.app = app
         self.version = version.format(**os.environ)
         self.source = source
-        self.source_type = source_type
+        self.packaging_type = packaging_type
         self.use_local_pip_conf = use_local_pip_conf
+        if package_build_root is None:
+            if packaging_type == "dir":
+                package_build_root = defaults.PACKAGE_BUILD_ROOT
+            elif packaging_type == "setup":
+                package_build_root = defaults.PACKAGE_TMP_BUILD_ROOT
         self.package_build_root = package_build_root.format(**os.environ)
         self.working_dir = working_dir.format(**os.environ)
         self.requirements_path = requirements_path.format(**os.environ)
+        if python_basedir is None:
+            if packaging_type == "dir":
+                python_basedir = "/".join([defaults.PYTHON_BASEDIR,
+                                           defaults.COMPILED_PYTHON_FOLDER_NAME])
+            elif packaging_type == "setup":
+                python_basedir = "/".join([defaults.PYTHON_BASEDIR, app])
         self.python_basedir = python_basedir.format(**os.environ)
         self.compile_python = compile_python
         self.compile_python_version = compile_python_version.format(**os.environ)
