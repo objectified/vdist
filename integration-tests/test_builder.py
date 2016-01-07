@@ -31,7 +31,7 @@ def test_generate_deb_from_git():
     assert os.path.getsize(target_file) > 0
 
 
-def test_generate_deb_from_git_setup_mode():
+def test_generate_deb_from_git_bundle():
     builder = Builder()
     builder.add_build(
         app='geolocate',
@@ -40,7 +40,7 @@ def test_generate_deb_from_git_setup_mode():
             uri='https://github.com/dante-signal31/geolocate',
             branch='master'
         ),
-        packaging_type="setup",
+        packaging_type="bundle",
         profile='ubuntu-trusty',
         compile_python=True,
         compile_python_version='3.4.3',
