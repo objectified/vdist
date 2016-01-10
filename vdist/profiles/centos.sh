@@ -111,15 +111,15 @@ find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
 {% if packaging_type == "separated_dir" %}
     {% if custom_filename %}
-        fpm -s {{source_type}} -t rpm -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t rpm -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
     {% else %}
-        fpm -s {{source_type}} -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_build_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
     {% endif %}
 {% elif packaging_type == "bundle" %}
     {% if custom_filename %}
-        fpm -s {{source_type}} -t rpm -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t rpm -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
     {% else %}
-        fpm -s {{source_type}} -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t rpm -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
     {% endif %}
 {% endif %}
 
