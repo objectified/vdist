@@ -46,7 +46,6 @@ class BuildProfile(object):
 class Build(object):
 
     def __init__(self, app, version, source, profile,
-                 packaging_type='separated_dir',
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, custom_filename=None,
                  fpm_args='', pip_args='',
@@ -58,23 +57,17 @@ class Build(object):
         self.app = app
         self.version = version.format(**os.environ)
         self.source = source
-        self.packaging_type = packaging_type
         self.use_local_pip_conf = use_local_pip_conf
         if package_build_root is None:
-            if packaging_type == "separated_dir":
-                package_build_root = defaults.PACKAGE_BUILD_ROOT
-            elif packaging_type == "bundle":
-                package_build_root = defaults.PACKAGE_TMP_BUILD_ROOT
-        self.package_build_root = package_build_root.format(**os.environ)
+            self.package_build_root = defaults.PACKAGE_TMP_BUILD_ROOT.format(**os.environ)
+        else:
+            self.package_build_root = package_build_root.format(**os.environ)
         self.working_dir = working_dir.format(**os.environ)
         self.requirements_path = requirements_path.format(**os.environ)
         if python_basedir is None:
-            if packaging_type == "separated_dir":
-                python_basedir = "/".join([defaults.PYTHON_BASEDIR,
-                                           defaults.COMPILED_PYTHON_FOLDER_NAME])
-            elif packaging_type == "bundle":
-                python_basedir = "/".join([defaults.PYTHON_BASEDIR, app])
-        self.python_basedir = python_basedir.format(**os.environ)
+            self.python_basedir = "/".join([defaults.PYTHON_BASEDIR, app]).format(**os.environ)
+        else:
+            self.python_basedir = python_basedir.format(**os.environ)
         # TODO: Tests what happens if user sets compile_python False.
         self.compile_python = compile_python
         self.compile_python_version = compile_python_version.format(**os.environ)
