@@ -11,7 +11,7 @@ BUILD_BASEDIR = os.path.join(VDIST_USERDIR, 'dist')
 SCRATCH_BUILDSCRIPT_NAME = 'buildscript.sh'
 SCRATCH_DIR = 'scratch'
 SHARED_DIR = '/work'
-PACKAGE_BUILD_ROOT = '/opt'
-PACKAGE_TMP_BUILD_ROOT = '/tmp'
+PACKAGE_INSTALL_ROOT = PYTHON_BASEDIR
+PACKAGE_TMP_ROOT = '/tmp'
 
 PYTHON3_INTERPRETER = True if sys.version_info[0] == 3 else False

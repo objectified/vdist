@@ -49,7 +49,8 @@ class Build(object):
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, custom_filename=None,
                  fpm_args='', pip_args='',
-                 package_build_root=None,
+                 package_install_root=None,
+                 package_tmp_root=None,
                  working_dir='', python_basedir=None,
                  compile_python=True,
                  compile_python_version=defaults.PYTHON_VERSION,
@@ -58,10 +59,14 @@ class Build(object):
         self.version = version.format(**os.environ)
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
-        if package_build_root is None:
-            self.package_build_root = defaults.PACKAGE_TMP_BUILD_ROOT.format(**os.environ)
+        if package_install_root is None:
+            self.package_install_root = defaults.PACKAGE_INSTALL_ROOT.format(**os.environ)
         else:
-            self.package_build_root = package_build_root.format(**os.environ)
+            self.package_install_root = package_install_root.format(**os.environ)
+        if package_tmp_root is None:
+            self.package_tmp_root = defaults.PACKAGE_TMP_ROOT.format(**os.environ)
+        else:
+            self.package_tmp_root = package_tmp_root.format(**os.environ)
         self.working_dir = working_dir.format(**os.environ)
         self.requirements_path = requirements_path.format(**os.environ)
         if python_basedir is None:

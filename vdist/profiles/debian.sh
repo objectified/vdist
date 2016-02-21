@@ -34,11 +34,11 @@ apt-get install -y {{build_deps|join(' ')}}
 
 {% endif %}
 
-if [ ! -d {{package_build_root}} ]; then
-    mkdir -p {{package_build_root}}
+if [ ! -d {{package_tmp_root}} ]; then
+    mkdir -p {{package_tmp_root}}
 fi
 
-cd {{package_build_root}}
+cd {{package_tmp_root}}
 
 {% if source.type == 'git' %}
 
@@ -49,7 +49,7 @@ cd {{package_build_root}}
 {% elif source.type in ['directory', 'git_directory'] %}
 
     cp -r {{scratch_dir}}/{{project_root}} .
-    cd {{package_build_root}}/{{project_root}}
+    cd {{package_tmp_root}}/{{project_root}}
 
     {% if source.type == 'git_directory' %}
         git checkout {{source.branch}}
@@ -69,8 +69,8 @@ cd {{package_build_root}}
 
 # when working_dir is set, assume that is the base and remove the rest
 {% if working_dir %}
-    mv {{working_dir}} {{package_build_root}} && rm -rf {{package_build_root}}/{{project_root}}
-    cd {{package_build_root}}/{{working_dir}}
+    mv {{working_dir}} {{package_tmp_root}} && rm -rf {{package_tmp_root}}/{{project_root}}
+    cd {{package_tmp_root}}/{{working_dir}}
 
     # reset project_root
     {% set project_root = working_dir %}
@@ -99,21 +99,33 @@ fi
 
 if [ -f "setup.py" ]; then
     $PYTHON_BIN setup.py install
+    builded=true
+else
+    builded=false
 fi
 
 cd /
 
 # get rid of VCS info
-find {{package_build_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
-find {{package_build_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
+find {{package_tmp_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
+find {{package_tmp_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-{% if custom_filename %}
-    fpm -s dir -t deb -n {{app}} -p {{package_build_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
-{% else %}
-    fpm -s dir -t deb -n {{app}} -p {{package_build_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
-{% endif %}
-
-
-cp {{package_build_root}}/*deb {{shared_dir}}
+if $builded; then
+    {% if custom_filename %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    {% else %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    {% endif %}
+    cp {{package_tmp_root}}/*deb {{shared_dir}}
+else
+    mkdir -p {{package_install_root}}/{{app}}
+    cp -r {{package_tmp_root}}/{{app}}/* {{package_install_root}}/{{app}}/.
+    {% if custom_filename %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    {% else %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+    {% endif %}
+    cp {{package_tmp_root}}/*deb {{shared_dir}}
+fi
 
 chown -R {{local_uid}}:{{local_gid}} {{shared_dir}}
