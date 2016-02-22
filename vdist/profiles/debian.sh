@@ -87,13 +87,10 @@ else
     PIP_BIN="$PYTHON_BASEDIR/bin/pip3"
 fi
 
-$PIP_BIN install -U pip setuptools
-
-virtualenv -p $PYTHON_BIN .
-
-source bin/activate
-
 if [ -f "$PWD{{requirements_path}}" ]; then
+    $PIP_BIN install -U pip setuptools
+    virtualenv -p $PYTHON_BIN .
+    source bin/activate
     $PIP_BIN install {{pip_args}} -r $PWD{{requirements_path}}
 fi
 

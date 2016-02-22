@@ -60,52 +60,52 @@ def _purge_list(original_list, purgables):
 # More info at:
 #   https://github.com/objectified/vdist/pull/7#issuecomment-177818848
 
-# # Scenario 1 - Project containing a setup.py and compiles Python -> only package
-# # the whole Python basedir.
-# def test_generate_deb_from_git_setup_compile():
-#     builder = Builder()
-#     builder.add_build(
-#         app='geolocate',
-#         version='1.3.0',
-#         source=git(
-#             uri='https://github.com/dante-signal31/geolocate',
-#             branch='master'
-#         ),
-#         profile='ubuntu-trusty',
-#         compile_python=True,
-#         compile_python_version='3.4.3',
-#         fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
-#                  'https://github.com/dante-signal31/geolocate --description '
-#                  '"This program accepts any text and searchs inside every IP '
-#                  'address. With each of those IP addresses, geolocate queries '
-#                  'Maxmind GeoIP database to look for the city and country where'
-#                  ' IP address or URL is located. Geolocate is designed to be'
-#                  ' used in console with pipes and redirections along with '
-#                  'applications like traceroute, nslookup, etc.'
-#                  ' " --license BSD-3 --category net',
-#         requirements_path='/REQUIREMENTS.txt'
-#     )
-#     builder.build()
-#     homedir = os.path.expanduser('~')
-#     target_file = os.path.join(
-#         homedir,
-#         '.vdist',
-#         'dist',
-#         'geolocate-1.3.0-ubuntu-trusty',
-#         'geolocate_1.3.0_amd64.deb'
-#     )
-#     assert os.path.isfile(target_file)
-#     assert os.path.getsize(target_file) > 0
-#     file_list = _read_deb_contents(target_file)
-#     entries_to_purge = [r'[^\.]', r'\./$', r'\./usr/', r'\./opt/$']
-#     file_list_purged = _purge_list(file_list, entries_to_purge)
-#     # At this point only a folder should remain if everything is correct.
-#     correct_install_path = "./opt/geolocate"
-#     assert all((True if correct_install_path in file_entry else False
-#                 for file_entry in file_list_purged))
-#     # Geolocate launcher should be in bin folder too.
-#     geolocate_launcher = "./opt/geolocate/bin/geolocate"
-#     assert geolocate_launcher in file_list_purged
+# Scenario 1 - Project containing a setup.py and compiles Python -> only package
+# the whole Python basedir.
+def test_generate_deb_from_git_setup_compile():
+    builder = Builder()
+    builder.add_build(
+        app='geolocate',
+        version='1.3.0',
+        source=git(
+            uri='https://github.com/dante-signal31/geolocate',
+            branch='master'
+        ),
+        profile='ubuntu-trusty',
+        compile_python=True,
+        compile_python_version='3.4.3',
+        fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
+                 'https://github.com/dante-signal31/geolocate --description '
+                 '"This program accepts any text and searchs inside every IP '
+                 'address. With each of those IP addresses, geolocate queries '
+                 'Maxmind GeoIP database to look for the city and country where'
+                 ' IP address or URL is located. Geolocate is designed to be'
+                 ' used in console with pipes and redirections along with '
+                 'applications like traceroute, nslookup, etc.'
+                 ' " --license BSD-3 --category net',
+        requirements_path='/REQUIREMENTS.txt'
+    )
+    builder.build()
+    homedir = os.path.expanduser('~')
+    target_file = os.path.join(
+        homedir,
+        '.vdist',
+        'dist',
+        'geolocate-1.3.0-ubuntu-trusty',
+        'geolocate_1.3.0_amd64.deb'
+    )
+    assert os.path.isfile(target_file)
+    assert os.path.getsize(target_file) > 0
+    file_list = _read_deb_contents(target_file)
+    entries_to_purge = [r'[^\.]', r'\./$', r'\./usr/', r'\./opt/$']
+    file_list_purged = _purge_list(file_list, entries_to_purge)
+    # At this point only a folder should remain if everything is correct.
+    correct_install_path = "./opt/geolocate"
+    assert all((True if correct_install_path in file_entry else False
+                for file_entry in file_list_purged))
+    # Geolocate launcher should be in bin folder too.
+    geolocate_launcher = "./opt/geolocate/bin/geolocate"
+    assert geolocate_launcher in file_list_purged
 
 
 # Scenario 2.- Project not containing a setup.py and compiles Python -> package
