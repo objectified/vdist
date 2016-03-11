@@ -1,5 +1,5 @@
 #!/bin/bash -x
-PYTHON_VERSION="{{compile_python_version}}"
+PYTHON_VERSION="{{python_version}}"
 PYTHON_BASEDIR="{{python_basedir}}"
 
 # fail on error
@@ -7,7 +7,7 @@ set -e
 
 # install fpm
 apt-get update
-apt-get install ruby-dev build-essential git python-virtualenv curl libssl-dev libsqlite3-dev libgdbm-dev libreadline-dev libbz2-dev libncurses5-dev tk-dev -y
+apt-get install ruby-dev build-essential git python-virtualenv curl libssl-dev libsqlite3-dev libgdbm-dev libreadline-dev libbz2-dev libncurses5-dev tk-dev python3 python3-pip -y
 
 # only install when needed, to save time with
 # pre-provisioned containers
@@ -109,9 +109,9 @@ find {{package_tmp_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
 if $builded; then
     {% if custom_filename %}
-        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} $PYTHON_BASEDIR
     {% else %}
-        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} $PYTHON_BASEDIR
     {% endif %}
     cp {{package_tmp_root}}/*deb {{shared_dir}}
 else

@@ -53,7 +53,7 @@ class Build(object):
                  package_tmp_root=None,
                  working_dir='', python_basedir=None,
                  compile_python=True,
-                 compile_python_version=defaults.PYTHON_VERSION,
+                 python_version=defaults.PYTHON_VERSION,
                  requirements_path='/requirements.txt'):
         self.app = app
         self.version = version.format(**os.environ)
@@ -75,7 +75,7 @@ class Build(object):
             self.python_basedir = python_basedir.format(**os.environ)
         # TODO: Tests what happens if user sets compile_python False.
         self.compile_python = compile_python
-        self.compile_python_version = compile_python_version.format(**os.environ)
+        self.python_version = python_version.format(**os.environ)
         if custom_filename:
             self.custom_filename = custom_filename.format(**os.environ)
         else:
