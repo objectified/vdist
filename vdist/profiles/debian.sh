@@ -118,9 +118,9 @@ else
     mkdir -p {{package_install_root}}/{{app}}
     cp -r {{package_tmp_root}}/{{app}}/* {{package_install_root}}/{{app}}/.
     {% if custom_filename %}
-        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} $PYTHON_BASEDIR
     {% else %}
-        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} {% if compile_python %} $PYTHON_BASEDIR {% endif %}
+        fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} {{package_install_root}}/{{project_root}} $PYTHON_BASEDIR
     {% endif %}
     cp {{package_tmp_root}}/*deb {{shared_dir}}
 fi

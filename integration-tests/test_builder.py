@@ -151,78 +151,35 @@ def _purge_list(original_list, purgables):
 #                for file_entry in file_list_purged)
 
 
-# Scenario 3 - Project containing a setup.py and using a prebuilt Python package
-# (e.g. not compiling) -> package the custom Python basedir only.
-def test_generate_deb_from_git_setup_nocompile():
-    builder = Builder()
-    builder.add_build(
-        app='geolocate',
-        version='1.3.0',
-        source=git(
-            uri='https://github.com/dante-signal31/geolocate',
-            branch='master'
-        ),
-        profile='ubuntu-trusty',
-        compile_python=False,
-        python_version='3.4.3',
-        # Lets suppose custom python package is already installed and its root
-        # folder is /usr. Actually I'm using default installed python3
-        # package, it's is going to be a huge package but this way don't
-        # need a private package repository.
-        python_basedir='/usr',
-        fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
-                 'https://github.com/dante-signal31/geolocate --description '
-                 '"This program accepts any text and searchs inside every IP '
-                 'address. With each of those IP addresses, geolocate queries '
-                 'Maxmind GeoIP database to look for the city and country where'
-                 ' IP address or URL is located. Geolocate is designed to be'
-                 ' used in console with pipes and redirections along with '
-                 'applications like traceroute, nslookup, etc.'
-                 ' " --license BSD-3 --category net',
-        requirements_path='/REQUIREMENTS.txt'
-    )
-    builder.build()
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'geolocate-1.3.0-ubuntu-trusty',
-        'geolocate_1.3.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
-    file_list = _read_deb_contents(target_file)
-    entries_to_purge = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
-    file_list_purged = _purge_list(file_list, entries_to_purge)
-    # At this point only a folder should remain if everything is correct.
-    correct_install_path = "./usr"
-    assert all((True if correct_install_path in file_entry else False
-                for file_entry in file_list_purged))
-    # If python basedir was properly packaged then /usr/bin/python should be
-    # there.
-    python_interpreter = "./usr/bin/python2.7"
-    assert python_interpreter in file_list_purged
-    # If application was properly packaged then launcher should be in bin folder
-    # too.
-    geolocate_launcher = "./usr/bin/geolocate"
-    assert geolocate_launcher in file_list_purged
-
-#
-# # Scenario 4.- Project not containing a setup.py and using a prebuilt Python
-# # package -> package both the project dir and the Python basedir
-# def test_generate_deb_from_git_nosetup_nocompile():
+# # Scenario 3 - Project containing a setup.py and using a prebuilt Python package
+# # (e.g. not compiling) -> package the custom Python basedir only.
+# def test_generate_deb_from_git_setup_nocompile():
 #     builder = Builder()
 #     builder.add_build(
-#         app='jtrouble',
-#         version='1.0.0',
+#         app='geolocate',
+#         version='1.3.0',
 #         source=git(
-#             uri='https://github.com/objectified/jtrouble',
+#             uri='https://github.com/dante-signal31/geolocate',
 #             branch='master'
 #         ),
 #         profile='ubuntu-trusty',
 #         compile_python=False,
+#         python_version='3.4.3',
+#         # Lets suppose custom python package is already installed and its root
+#         # folder is /usr. Actually I'm using default installed python3
+#         # package, it's is going to be a huge package but this way don't
+#         # need a private package repository.
 #         python_basedir='/usr',
+#         fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
+#                  'https://github.com/dante-signal31/geolocate --description '
+#                  '"This program accepts any text and searchs inside every IP '
+#                  'address. With each of those IP addresses, geolocate queries '
+#                  'Maxmind GeoIP database to look for the city and country where'
+#                  ' IP address or URL is located. Geolocate is designed to be'
+#                  ' used in console with pipes and redirections along with '
+#                  'applications like traceroute, nslookup, etc.'
+#                  ' " --license BSD-3 --category net',
+#         requirements_path='/REQUIREMENTS.txt'
 #     )
 #     builder.build()
 #     homedir = os.path.expanduser('~')
@@ -230,26 +187,72 @@ def test_generate_deb_from_git_setup_nocompile():
 #         homedir,
 #         '.vdist',
 #         'dist',
-#         'jtrouble-1.0.0-ubuntu-trusty',
-#         'jtrouble_1.0.0_amd64.deb'
+#         'geolocate-1.3.0-ubuntu-trusty',
+#         'geolocate_1.3.0_amd64.deb'
 #     )
 #     assert os.path.isfile(target_file)
 #     assert os.path.getsize(target_file) > 0
 #     file_list = _read_deb_contents(target_file)
-#     entries_to_purge = [r'[^\.]', r'\./$', r'\./opt/$']
+#     entries_to_purge = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
 #     file_list_purged = _purge_list(file_list, entries_to_purge)
-#     # At this point only two folders should remain if everything is correct:
-#     # application folder and python basedir folder.
-#     correct_folders = ["./opt/jtrouble", "./usr"]
-#     assert all((True if any(folder in file_entry for folder in correct_folders)
-#                 else False
+#     # At this point only a folder should remain if everything is correct.
+#     correct_install_path = "./usr"
+#     assert all((True if correct_install_path in file_entry else False
 #                 for file_entry in file_list_purged))
 #     # If python basedir was properly packaged then /usr/bin/python should be
 #     # there.
-#     python_interpreter = "./usr/bin/python"
+#     python_interpreter = "./usr/bin/python2.7"
 #     assert python_interpreter in file_list_purged
-#
+#     # If application was properly packaged then launcher should be in bin folder
+#     # too.
+#     geolocate_launcher = "./usr/bin/geolocate"
+#     assert geolocate_launcher in file_list_purged
 
+
+# Scenario 4.- Project not containing a setup.py and using a prebuilt Python
+# package -> package both the project dir and the Python basedir
+def test_generate_deb_from_git_nosetup_nocompile():
+    builder = Builder()
+    builder.add_build(
+        app='jtrouble',
+        version='1.0.0',
+        source=git(
+            uri='https://github.com/objectified/jtrouble',
+            branch='master'
+        ),
+        profile='ubuntu-trusty',
+        compile_python=False,
+        # Here happens the same than in
+        # test_generate_deb_from_git_setup_nocompile()
+        python_version='3.4.3',
+        python_basedir='/usr',
+    )
+    builder.build()
+    homedir = os.path.expanduser('~')
+    target_file = os.path.join(
+        homedir,
+        '.vdist',
+        'dist',
+        'jtrouble-1.0.0-ubuntu-trusty',
+        'jtrouble_1.0.0_amd64.deb'
+    )
+    assert os.path.isfile(target_file)
+    assert os.path.getsize(target_file) > 0
+    file_list = _read_deb_contents(target_file)
+    entries_to_purge = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
+    file_list_purged = _purge_list(file_list, entries_to_purge)
+    # At this point only two folders should remain if everything is correct:
+    # application folder and python basedir folder.
+    correct_folders = ["./opt/jtrouble", "./usr"]
+    assert all((True if any(folder in file_entry for folder in correct_folders)
+                else False
+                for file_entry in file_list_purged))
+    # If python basedir was properly packaged then /usr/bin/python should be
+    # there.
+    python_interpreter = "./usr/bin/python2.7"
+    assert python_interpreter in file_list_purged
+
+#
 # def test_generate_deb_from_git_suffixed():
 #     builder = Builder()
 #     builder.add_build(
@@ -273,7 +276,7 @@ def test_generate_deb_from_git_setup_nocompile():
 #     )
 #     assert os.path.isfile(target_file)
 #     assert os.path.getsize(target_file) > 0
-#
+
 #
 # def test_generate_deb_from_git_directory():
 #     tempdir = tempfile.gettempdir()
