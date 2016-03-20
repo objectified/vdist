@@ -6,6 +6,9 @@ import tempfile
 from vdist.builder import Builder
 from vdist.source import git, git_directory, directory
 
+COMPILE_FILTER = [r'[^\.]', r'\./$', r'\./usr/', r'\./opt/$']
+NOCOMPILE_FILTER = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
+
 
 def _read_deb_contents(deb_file_pathname):
     entries = os.popen("dpkg -c {0}".format(deb_file_pathname)).readlines()
@@ -24,29 +27,43 @@ def _purge_list(original_list, purgables):
     return list_purged
 
 
-def test_generate_deb_from_git():
+def _generate_deb(builder_parameters):
     builder = Builder()
-    builder.add_build(
-        app='vdist-test-generate-deb-from-git',
-        version='1.0',
-        source=git(
-            uri='https://github.com/objectified/vdist',
-            branch='master'
-        ),
-        profile='ubuntu-trusty'
-    )
+    builder.add_build(**builder_parameters)
     builder.build()
 
     homedir = os.path.expanduser('~')
+    filename_prefix = "-".join([builder_parameters["app"],
+                                builder_parameters["version"]])
+    deb_filename_prefix = "_".join([builder_parameters["app"],
+                                    builder_parameters["version"]])
     target_file = os.path.join(
         homedir,
         '.vdist',
         'dist',
-        'vdist-test-generate-deb-from-git-1.0-ubuntu-trusty',
-        'vdist-test-generate-deb-from-git_1.0_amd64.deb'
+        "".join([filename_prefix, "-ubuntu-trusty"]),
+        "".join([deb_filename_prefix, '_amd64.deb']),
     )
     assert os.path.isfile(target_file)
     assert os.path.getsize(target_file) > 0
+    return target_file
+
+
+def _get_purged_deb_file_list(deb_filepath, file_filter):
+    file_list = _read_deb_contents(deb_filepath)
+    file_list_purged = _purge_list(file_list, file_filter)
+    return file_list_purged
+
+
+def test_generate_deb_from_git():
+    builder_parameters = {"app": 'vdist-test-generate-deb-from-git',
+                          "version": '1.0',
+                          "source": git(
+                              uri='https://github.com/objectified/vdist',
+                              branch='master'
+                          ),
+                          "profile": 'ubuntu-trusty'}
+    _ = _generate_deb(builder_parameters)
 
 #
 # Scenarios to test:
@@ -65,42 +82,31 @@ def test_generate_deb_from_git():
 # Scenario 1 - Project containing a setup.py and compiles Python -> only package
 # the whole Python basedir.
 def test_generate_deb_from_git_setup_compile():
-    builder = Builder()
-    builder.add_build(
-        app='geolocate',
-        version='1.3.0',
-        source=git(
+    builder_parameters = {
+        "app": 'geolocate',
+        "version": '1.3.0',
+        "source": git(
             uri='https://github.com/dante-signal31/geolocate',
             branch='master'
         ),
-        profile='ubuntu-trusty',
-        compile_python=True,
-        python_version='3.4.3',
-        fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
-                 'https://github.com/dante-signal31/geolocate --description '
-                 '"This program accepts any text and searchs inside every IP '
-                 'address. With each of those IP addresses, geolocate queries '
-                 'Maxmind GeoIP database to look for the city and country where'
-                 ' IP address or URL is located. Geolocate is designed to be'
-                 ' used in console with pipes and redirections along with '
-                 'applications like traceroute, nslookup, etc.'
-                 ' " --license BSD-3 --category net',
-        requirements_path='/REQUIREMENTS.txt'
-    )
-    builder.build()
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'geolocate-1.3.0-ubuntu-trusty',
-        'geolocate_1.3.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
-    file_list = _read_deb_contents(target_file)
-    entries_to_purge = [r'[^\.]', r'\./$', r'\./usr/', r'\./opt/$']
-    file_list_purged = _purge_list(file_list, entries_to_purge)
+        "profile": 'ubuntu-trusty',
+        "compile_python": True,
+        "python_version": '3.4.3',
+        "fpm_args": '--maintainer dante.signal31@gmail.com -a native --url '
+                    'https://github.com/dante-signal31/geolocate --description '
+                    '"This program accepts any text and searchs inside every IP'
+                    ' address. With each of those IP addresses, '
+                    'geolocate queries '
+                    'Maxmind GeoIP database to look for the city and '
+                    'country where'
+                    ' IP address or URL is located. Geolocate is designed to be'
+                    ' used in console with pipes and redirections along with '
+                    'applications like traceroute, nslookup, etc.'
+                    ' " --license BSD-3 --category net',
+        "requirements_path": '/REQUIREMENTS.txt'
+    }
+    target_file = _generate_deb(builder_parameters)
+    file_list_purged = _get_purged_deb_file_list(target_file, COMPILE_FILTER)
     # At this point only a folder should remain if everything is correct.
     correct_install_path = "./opt/geolocate"
     assert all((True if correct_install_path in file_entry else False
@@ -113,34 +119,19 @@ def test_generate_deb_from_git_setup_compile():
 # Scenario 2.- Project not containing a setup.py and compiles Python -> package
 # both the project dir and the Python basedir
 def test_generate_deb_from_git_nosetup_compile():
-    builder = Builder()
-    builder.add_build(
-        app='jtrouble',
-        version='1.0.0',
-        source=git(
-            uri='https://github.com/objectified/jtrouble',
-            branch='master'
-        ),
-        profile='ubuntu-trusty',
-        package_install_root="/opt",
-        python_basedir="/opt/python",
-        compile_python=True,
-        python_version='3.4.3',
-    )
-    builder.build()
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'jtrouble-1.0.0-ubuntu-trusty',
-        'jtrouble_1.0.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
-    file_list = _read_deb_contents(target_file)
-    entries_to_purge = [r'[^\.]', r'\./$', r'\./usr/', r'\./opt/$']
-    file_list_purged = _purge_list(file_list, entries_to_purge)
+    builder_parameters = {"app": 'jtrouble',
+                          "version": '1.0.0',
+                          "source": git(
+                                uri='https://github.com/objectified/jtrouble',
+                                branch='master'
+                          ),
+                          "profile": 'ubuntu-trusty',
+                          "package_install_root": "/opt",
+                          "python_basedir": "/opt/python",
+                          "compile_python": True,
+                          "python_version": '3.4.3', }
+    target_file = _generate_deb(builder_parameters)
+    file_list_purged = _get_purged_deb_file_list(target_file, COMPILE_FILTER)
     # At this point only two folders should remain if everything is correct:
     # application folder and compiled interpreter folder.
     correct_folders = ["./opt/jtrouble", "./opt/python"]
@@ -156,47 +147,37 @@ def test_generate_deb_from_git_nosetup_compile():
 # Scenario 3 - Project containing a setup.py and using a prebuilt Python package
 # (e.g. not compiling) -> package the custom Python basedir only.
 def test_generate_deb_from_git_setup_nocompile():
-    builder = Builder()
-    builder.add_build(
-        app='geolocate',
-        version='1.3.0',
-        source=git(
+    builder_parameters = {
+        "app": 'geolocate',
+        "version": '1.3.0',
+        "source": git(
             uri='https://github.com/dante-signal31/geolocate',
             branch='master'
         ),
-        profile='ubuntu-trusty',
-        compile_python=False,
-        python_version='3.4.3',
+        "profile": 'ubuntu-trusty',
+        "compile_python": False,
+        "python_version": '3.4.3',
         # Lets suppose custom python package is already installed and its root
         # folder is /usr. Actually I'm using default installed python3
         # package, it's is going to be a huge package but this way don't
         # need a private package repository.
-        python_basedir='/usr',
-        fpm_args='--maintainer dante.signal31@gmail.com -a native --url '
-                 'https://github.com/dante-signal31/geolocate --description '
-                 '"This program accepts any text and searchs inside every IP '
-                 'address. With each of those IP addresses, geolocate queries '
-                 'Maxmind GeoIP database to look for the city and country where'
-                 ' IP address or URL is located. Geolocate is designed to be'
-                 ' used in console with pipes and redirections along with '
-                 'applications like traceroute, nslookup, etc.'
-                 ' " --license BSD-3 --category net',
-        requirements_path='/REQUIREMENTS.txt'
-    )
-    builder.build()
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'geolocate-1.3.0-ubuntu-trusty',
-        'geolocate_1.3.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
-    file_list = _read_deb_contents(target_file)
-    entries_to_purge = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
-    file_list_purged = _purge_list(file_list, entries_to_purge)
+        "python_basedir": '/usr',
+        "fpm_args": '--maintainer dante.signal31@gmail.com -a native --url '
+                    'https://github.com/dante-signal31/geolocate --description '
+                    '"This program accepts any text and searchs inside'
+                    ' every IP '
+                    'address. With each of those IP addresses, '
+                    'geolocate queries '
+                    'Maxmind GeoIP database to look for the city and '
+                    'country where'
+                    ' IP address or URL is located. Geolocate is designed to be'
+                    ' used in console with pipes and redirections along with '
+                    'applications like traceroute, nslookup, etc.'
+                    ' " --license BSD-3 --category net',
+        "requirements_path": '/REQUIREMENTS.txt'
+    }
+    target_file = _generate_deb(builder_parameters)
+    file_list_purged = _get_purged_deb_file_list(target_file, NOCOMPILE_FILTER)
     # At this point only a folder should remain if everything is correct.
     correct_install_path = "./usr"
     assert all((True if correct_install_path in file_entry else False
@@ -214,35 +195,22 @@ def test_generate_deb_from_git_setup_nocompile():
 # Scenario 4.- Project not containing a setup.py and using a prebuilt Python
 # package -> package both the project dir and the Python basedir
 def test_generate_deb_from_git_nosetup_nocompile():
-    builder = Builder()
-    builder.add_build(
-        app='jtrouble',
-        version='1.0.0',
-        source=git(
+    builder_parameters = {
+        "app": 'jtrouble',
+        "version": '1.0.0',
+        "source": git(
             uri='https://github.com/objectified/jtrouble',
             branch='master'
         ),
-        profile='ubuntu-trusty',
-        compile_python=False,
+        "profile": 'ubuntu-trusty',
+        "compile_python": False,
         # Here happens the same than in
         # test_generate_deb_from_git_setup_nocompile()
-        python_version='3.4.3',
-        python_basedir='/usr',
-    )
-    builder.build()
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'jtrouble-1.0.0-ubuntu-trusty',
-        'jtrouble_1.0.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
-    file_list = _read_deb_contents(target_file)
-    entries_to_purge = [r'[^\.]', r'^\.\.', r'\./$', r'^\.$', r'\./opt/$']
-    file_list_purged = _purge_list(file_list, entries_to_purge)
+        "python_version": '3.4.3',
+        "python_basedir": '/usr',
+    }
+    target_file = _generate_deb(builder_parameters)
+    file_list_purged = _get_purged_deb_file_list(target_file, NOCOMPILE_FILTER)
     # At this point only two folders should remain if everything is correct:
     # application folder and python basedir folder.
     correct_folders = ["./opt/jtrouble", "./usr"]
@@ -256,28 +224,14 @@ def test_generate_deb_from_git_nosetup_nocompile():
 
 
 def test_generate_deb_from_git_suffixed():
-    builder = Builder()
-    builder.add_build(
-        app='vdist-test-generate-deb-from-git-suffixed',
-        version='1.0',
-        source=git(
-            uri='https://github.com/objectified/vdist.git',
-            branch='master'
-        ),
-        profile='ubuntu-trusty'
-    )
-    builder.build()
-
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'vdist-test-generate-deb-from-git-suffixed-1.0-ubuntu-trusty',
-        'vdist-test-generate-deb-from-git-suffixed_1.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
+    builder_parameters = {"app": 'vdist-test-generate-deb-from-git-suffixed',
+                          "version": '1.0',
+                          "source": git(
+                            uri='https://github.com/objectified/vdist.git',
+                            branch='master'
+                          ),
+                          "profile": 'ubuntu-trusty'}
+    _ = _generate_deb(builder_parameters)
 
 
 def test_generate_deb_from_git_directory():
@@ -290,28 +244,12 @@ def test_generate_deb_from_git_directory():
          checkout_dir])
     git_p.communicate()
 
-    builder = Builder()
-    builder.add_build(
-        app='vdist-test-generate-deb-from-git-dir',
-        version='1.0',
-        source=git_directory(
-            path=checkout_dir,
-            branch='master'
-        ),
-        profile='ubuntu-trusty'
-    )
-    builder.build()
-
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'vdist-test-generate-deb-from-git-dir-1.0-ubuntu-trusty',
-        'vdist-test-generate-deb-from-git-dir_1.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
+    builder_parameters = {"app": 'vdist-test-generate-deb-from-git-dir',
+                          "version": '1.0',
+                          "source": git_directory(path=checkout_dir,
+                                                  branch='master'),
+                          "profile": 'ubuntu-trusty'}
+    _ = _generate_deb(builder_parameters)
 
 
 def test_generate_deb_from_directory():
@@ -324,24 +262,8 @@ def test_generate_deb_from_directory():
          checkout_dir])
     git_p.communicate()
 
-    builder = Builder()
-    builder.add_build(
-        app='vdist-test-generate-deb-from-dir',
-        version='1.0',
-        source=directory(
-            path=checkout_dir,
-        ),
-        profile='ubuntu-trusty'
-    )
-    builder.build()
-
-    homedir = os.path.expanduser('~')
-    target_file = os.path.join(
-        homedir,
-        '.vdist',
-        'dist',
-        'vdist-test-generate-deb-from-dir-1.0-ubuntu-trusty',
-        'vdist-test-generate-deb-from-dir_1.0_amd64.deb'
-    )
-    assert os.path.isfile(target_file)
-    assert os.path.getsize(target_file) > 0
+    builder_parameters = {"app": 'vdist-test-generate-deb-from-dir',
+                          "version": '1.0',
+                          "source": directory(path=checkout_dir, ),
+                          "profile": 'ubuntu-trusty'}
+    _ = _generate_deb(builder_parameters)
