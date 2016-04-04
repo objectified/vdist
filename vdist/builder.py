@@ -73,7 +73,6 @@ class Build(object):
             self.python_basedir = "/".join([defaults.PYTHON_BASEDIR, app]).format(**os.environ)
         else:
             self.python_basedir = python_basedir.format(**os.environ)
-        # TODO: Tests what happens if user sets compile_python False.
         self.compile_python = compile_python
         self.python_version = python_version.format(**os.environ)
         if custom_filename:

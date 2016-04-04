@@ -31,7 +31,6 @@ apt-get install -y {{build_deps|join(' ')}}
     cd Python-$PYTHON_VERSION
     ./configure --prefix=$PYTHON_BASEDIR --with-ensurepip=install
     make && make install
-
 {% endif %}
 
 if [ ! -d {{package_tmp_root}} ]; then
