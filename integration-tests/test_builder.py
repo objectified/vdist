@@ -18,7 +18,8 @@ def _read_deb_contents(deb_file_pathname):
 
 def _read_rpm_contents(rpm_file_pathname):
     entries = os.popen("rpm -qlp {0}".format(rpm_file_pathname)).readlines()
-    file_list = [entry for entry in entries if entry.startswith("/")]
+    file_list = [entry.rstrip("\n") for entry in entries
+                 if entry.startswith("/")]
     return file_list
 
 
@@ -94,15 +95,15 @@ def _get_purged_deb_file_list(deb_filepath, file_filter):
 #     _ = _generate_deb(builder_parameters)
 
 
-def test_generate_rpm_from_git():
-    builder_parameters = {"app": 'vdist-test-generate-rpm-from-git',
-                          "version": '1.0',
-                          "source": git(
-                              uri='https://github.com/objectified/vdist',
-                              branch='master'
-                          ),
-                          "profile": 'centos7'}
-    _ = _generate_rpm(builder_parameters)
+# def test_generate_rpm_from_git():
+#     builder_parameters = {"app": 'vdist-test-generate-rpm-from-git',
+#                           "version": '1.0',
+#                           "source": git(
+#                               uri='https://github.com/objectified/vdist',
+#                               branch='master'
+#                           ),
+#                           "profile": 'centos7'}
+#     _ = _generate_rpm(builder_parameters)
 
 #
 # Scenarios to test:
@@ -155,39 +156,39 @@ def test_generate_rpm_from_git():
 #     assert geolocate_launcher in file_list_purged
 
 
-# def test_generate_rpm_from_get_setup_compile():
-#     builder_parameters = {
-#         "app": 'geolocate',
-#         "version": '1.3.0',
-#         "source": git(
-#             uri='https://github.com/dante-signal31/geolocate',
-#             branch='master'
-#         ),
-#         "profile": 'centos6',
-#         "compile_python": True,
-#         "python_version": '3.4.3',
-#         "fpm_args": '--maintainer dante.signal31@gmail.com -a native --url '
-#                     'https://github.com/dante-signal31/geolocate --description '
-#                     '"This program accepts any text and searchs inside every IP'
-#                     ' address. With each of those IP addresses, '
-#                     'geolocate queries '
-#                     'Maxmind GeoIP database to look for the city and '
-#                     'country where'
-#                     ' IP address or URL is located. Geolocate is designed to be'
-#                     ' used in console with pipes and redirections along with '
-#                     'applications like traceroute, nslookup, etc.'
-#                     ' " --license BSD-3 --category net',
-#         "requirements_path": '/REQUIREMENTS.txt'
-#     }
-#     target_file = _generate_rpm(builder_parameters)
-#     file_list = _read_rpm_contents(target_file)
-#     # At this point only a folder should remain if everything is correct.
-#     correct_install_path = "/opt/geolocate"
-#     assert all((True if correct_install_path in file_entry else False
-#                 for file_entry in file_list))
-#     # Geolocate launcher should be in bin folder too.
-#     geolocate_launcher = "/opt/geolocate/bin/geolocate"
-#     assert geolocate_launcher in file_list
+def test_generate_rpm_from_get_setup_compile():
+    builder_parameters = {
+        "app": 'geolocate',
+        "version": '1.3.0',
+        "source": git(
+            uri='https://github.com/dante-signal31/geolocate',
+            branch='master'
+        ),
+        "profile": 'centos7',
+        "compile_python": True,
+        "python_version": '3.4.3',
+        "fpm_args": '--maintainer dante.signal31@gmail.com -a native --url '
+                    'https://github.com/dante-signal31/geolocate --description '
+                    '"This program accepts any text and searchs inside every IP'
+                    ' address. With each of those IP addresses, '
+                    'geolocate queries '
+                    'Maxmind GeoIP database to look for the city and '
+                    'country where'
+                    ' IP address or URL is located. Geolocate is designed to be'
+                    ' used in console with pipes and redirections along with '
+                    'applications like traceroute, nslookup, etc.'
+                    ' " --license BSD-3 --category net',
+        "requirements_path": '/REQUIREMENTS.txt'
+    }
+    target_file = _generate_rpm(builder_parameters)
+    file_list = _read_rpm_contents(target_file)
+    # At this point only a folder should remain if everything is correct.
+    correct_install_path = "/opt/geolocate"
+    assert all((True if correct_install_path in file_entry else False
+                for file_entry in file_list))
+    # Geolocate launcher should be in bin folder too.
+    geolocate_launcher = "/opt/geolocate/bin/geolocate"
+    assert geolocate_launcher in file_list
 
 #
 # # Scenario 2.- Project not containing a setup.py and compiles Python -> package
