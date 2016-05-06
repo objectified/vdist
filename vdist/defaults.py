@@ -2,7 +2,6 @@ import os
 import sys
 
 PYTHON_BASEDIR = '/opt'
-COMPILED_PYTHON_FOLDER_NAME = 'vdist-python'
 PYTHON_VERSION = '2.7.9'
 LOCAL_PROFILES_DIR = 'buildprofiles'
 LOCAL_PROFILES_FILE = 'profiles.json'
