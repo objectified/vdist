@@ -95,9 +95,9 @@ fi
 
 if [ -f "setup.py" ]; then
     $PYTHON_BIN setup.py install
-    builded=true
+    built=true
 else
-    builded=false
+    built=false
 fi
 
 cd /
@@ -106,7 +106,7 @@ cd /
 find {{package_tmp_root}} -type d -name '.git' -print0 | xargs -0 rm -rf
 find {{package_tmp_root}} -type d -name '.svn' -print0 | xargs -0 rm -rf
 
-if $builded; then
+if $built; then
     {% if custom_filename %}
         fpm -s dir -t deb -n {{app}} -p {{package_tmp_root}}/{{custom_filename}} -v {{version}} {% for dep in runtime_deps %} --depends {{dep}} {% endfor %} {{fpm_args}} $PYTHON_BASEDIR
     {% else %}
