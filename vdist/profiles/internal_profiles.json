@@ -3,6 +3,10 @@
         "docker_image": "centos:centos7",
         "script": "centos.sh"
     },
+    "centos6": {
+        "docker_image": "centos:centos6",
+        "script": "centos6.sh"
+    },
     "ubuntu-trusty": {
         "docker_image": "ubuntu:trusty",
         "script": "debian.sh"
