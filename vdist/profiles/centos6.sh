@@ -1,24 +1,23 @@
 #!/bin/bash -x
 PYTHON_VERSION="{{python_version}}"
 PYTHON_BASEDIR="{{python_basedir}}"
+CONTAINER_PYTHON3_VERSION="5"
 
 # fail on error
 set -e
 
 # install general prerequisites
 yum -y update
+yum groupinstall -y "Development Tools"
 yum install -y ruby-devel curl libyaml-devel which tar rpm-build rubygems git python-setuptools zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel gcc gcc-c++
 yum install -y yum-utils
-yum groupinstall -y "Development Tools"
 
-# compile Python to get Python 3 support.
-cd /var/tmp
-curl -O https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
-tar xf Python-3.5.1.tgz
-cd Python-3.5.1
-./configure
-make
-make install
+# Python 3 RPM installation to get basic support in that Python version.
+# Idea taken from: http://stackoverflow.com/questions/8087184/problems-installing-python3-on-rhel
+yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+yum install -y python3${CONTAINER_PYTHON3_VERSION}u python3${CONTAINER_PYTHON3_VERSION}u-pip
+ln -s /usr/bin/python3.$CONTAINER_PYTHON3_VERSION /usr/bin/python3
+ln -s /usr/bin/pip3.$CONTAINER_PYTHON3_VERSION /usr/bin/pip3
 
 # install build dependencies needed for this specific build
 {% if build_deps %}
@@ -43,8 +42,25 @@ easy_install virtualenv
     curl -O https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
     tar xzvf Python-$PYTHON_VERSION.tgz
     cd Python-$PYTHON_VERSION
-    ./configure --prefix=$PYTHON_BASEDIR
-    make && make install
+    # Configure fails if folder in rpath doesn't exists before.
+    # Creating it, even empty, before configure seems to solve issue.
+    # More info in:
+    #   http://koansys.com/tech/building-python-with-enable-shared-in-non-standard-location
+    mkdir -p ${PYTHON_BASEDIR}/lib
+    ./configure --prefix=$PYTHON_BASEDIR --enable-shared LDFLAGS="-Wl,-rpath ${PYTHON_BASEDIR}/lib"
+    make
+    make altinstall
+    PYTHON_MAIN_VERSION=${PYTHON_VERSION:0:3}
+    if [[ ${PYTHON_VERSION:0:1} == "2" ]]; then
+        ln -s $PYTHON_BASEDIR/bin/python$PYTHON_MAIN_VERSION $PYTHON_BASEDIR/bin/python
+        # At this point pip does not exists yet so we're creating a dead link
+        # but later we are going to install pip through ensurepip module
+        # so this is going to be fixed.
+        ln -s $PYTHON_BASEDIR/bin/pip$PYTHON_MAIN_VERSION $PYTHON_BASEDIR/bin/pip
+    else
+        ln -s $PYTHON_BASEDIR/bin/python$PYTHON_MAIN_VERSION $PYTHON_BASEDIR/bin/python3
+        ln -s $PYTHON_BASEDIR/bin/pip$PYTHON_MAIN_VERSION $PYTHON_BASEDIR/bin/pip3
+    fi
 {% endif %}
 
 if [ ! -d {{package_tmp_root}} ]; then

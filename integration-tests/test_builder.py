@@ -358,7 +358,7 @@ def generate_rpm_from_git_setup_nocompile(centos_version):
                 for file_entry in file_list))
     # If python basedir was properly packaged then /usr/bin/python should be
     # there.
-    python_interpreter = "/usr/bin/python2.7"
+    python_interpreter = "/usr/bin/python"
     assert python_interpreter in file_list
     # If application was properly packaged then launcher should be in bin folder
     # too.
@@ -431,7 +431,7 @@ def generate_rpm_from_git_nosetup_nocompile(centos_version):
                 for file_entry in file_list))
     # If python basedir was properly packaged then /usr/bin/python should be
     # there.
-    python_interpreter = "/usr/bin/python2.7"
+    python_interpreter = "/usr/bin/python"
     assert python_interpreter in file_list
 
 
