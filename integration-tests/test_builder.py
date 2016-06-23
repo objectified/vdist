@@ -151,7 +151,8 @@ def test_generate_deb_from_git_setup_compile():
                     ' used in console with pipes and redirections along with '
                     'applications like traceroute, nslookup, etc.'
                     ' " --license BSD-3 --category net',
-        "requirements_path": '/REQUIREMENTS.txt'
+        "requirements_path": '/REQUIREMENTS.txt',
+        "runtime_deps": ["libssl1.0.0", ]
     }
     target_file = _generate_deb(builder_parameters)
     file_list_purged = _get_purged_deb_file_list(target_file,
@@ -187,7 +188,8 @@ def generate_rpm_from_git_setup_compile(centos_version):
                     ' used in console with pipes and redirections along with '
                     'applications like traceroute, nslookup, etc.'
                     ' " --license BSD-3 --category net',
-        "requirements_path": '/REQUIREMENTS.txt'
+        "requirements_path": '/REQUIREMENTS.txt',
+        "runtime_deps": ["libssl1.0.0", ]
     }
     target_file = _generate_rpm(builder_parameters, centos_version)
     file_list = _read_rpm_contents(target_file)
@@ -301,7 +303,8 @@ def test_generate_deb_from_git_setup_nocompile():
                     ' used in console with pipes and redirections along with '
                     'applications like traceroute, nslookup, etc.'
                     ' " --license BSD-3 --category net',
-        "requirements_path": '/REQUIREMENTS.txt'
+        "requirements_path": '/REQUIREMENTS.txt',
+        "runtime_deps": ["libssl1.0.0", ]
     }
     target_file = _generate_deb(builder_parameters)
     file_list_purged = _get_purged_deb_file_list(target_file,
@@ -348,7 +351,8 @@ def generate_rpm_from_git_setup_nocompile(centos_version):
                     ' used in console with pipes and redirections along with '
                     'applications like traceroute, nslookup, etc.'
                     ' " --license BSD-3 --category net',
-        "requirements_path": '/REQUIREMENTS.txt'
+        "requirements_path": '/REQUIREMENTS.txt',
+        "runtime_deps": ["libssl1.0.0", ]
     }
     target_file = _generate_rpm(builder_parameters, centos_version)
     file_list = _read_rpm_contents(target_file)
