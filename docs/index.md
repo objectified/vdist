@@ -1,10 +1,17 @@
 # vdist
 
-Welcome to the home of vdist, a tool that lets you create OS packages from your Python applications in a clean and self contained manner. It uses [virtualenv](https://virtualenv.pypa.io/en/latest/), [Docker](https://www.docker.com/) and [fpm](https://github.com/jordansissel/fpm) under the hood, and it uses [Jinja2](http://jinja.pocoo.org/docs/dev/) to render its templates (shell scripts) for each individual target OS.
+Welcome to the home of vdist, a tool that lets you create OS packages from your
+Python applications in a clean and self contained manner.
+It uses [virtualenv](https://virtualenv.pypa.io/en/latest/),
+[Docker](https://www.docker.com/) and [fpm](https://github.com/jordansissel/fpm)
+under the hood, and it uses [Jinja2](http://jinja.pocoo.org/docs/dev/) to render
+its templates (shell scripts) for each individual target OS.
 
-The source for vdist is available under the MIT license and can be found on [Github](https://github.com/objectified/vdist)
+The source for vdist is available under the MIT license and can be found on
+[Github](https://github.com/objectified/vdist)
 
-vdist is currently in alpha stage, but it should work just fine. If you find any issues, please report issues or submit pull requests via Github.
+vdist is currently in alpha stage, but it should work just fine. If you find any
+issues, please report issues or submit pull requests via Github.
 
 Here's a quickstart to give you an idea of how to use vdist, once you're set up.
 
@@ -41,9 +48,11 @@ Running the above would do this:
 
 - set up a virtualenv for the checked out application
 
-- install your application's dependencies from requirements.txt if found in the checked out branch
+- install your application's dependencies from requirements.txt if found in the
+checked out branch
 
-- wrap the virtualenv in a package called `yourapp-1.0.deb` which includes a dependency on the OS packages listed in `runtime_deps`
+- wrap the virtualenv in a package called `yourapp-1.0.deb` which includes a
+dependency on the OS packages listed in `runtime_deps`
 
 
 Similarly, the same build for CentOS 6 would look like this.
@@ -61,7 +70,7 @@ builder.add_build(
         uri='https://github.com/you/yourapp',
         branch='release-1.0'
     ),
-    profile='centos6',
+    profile='centos7',
     build_deps=['postgresql-devel'],
     runtime_deps=['libcurl3']
 )
@@ -69,4 +78,5 @@ builder.add_build(
 builder.build()
 ```
 
-Read more about what vdist can do [here](http://vdist.readthedocs.org/en/latest/howtouse/)
+Read more about what vdist can do
+[here](http://vdist.readthedocs.org/en/latest/howtouse/)

@@ -49,21 +49,32 @@ class Build(object):
                  name=None, use_local_pip_conf=False, build_deps=None,
                  runtime_deps=None, custom_filename=None,
                  fpm_args='', pip_args='',
-                 package_build_root=defaults.PACKAGE_BUILD_ROOT,
-                 working_dir='', python_basedir=defaults.PYTHON_BASEDIR,
+                 package_install_root=None,
+                 package_tmp_root=None,
+                 working_dir='', python_basedir=None,
                  compile_python=True,
-                 compile_python_version=defaults.PYTHON_VERSION,
+                 python_version=defaults.PYTHON_VERSION,
                  requirements_path='/requirements.txt'):
         self.app = app
         self.version = version.format(**os.environ)
         self.source = source
         self.use_local_pip_conf = use_local_pip_conf
-        self.package_build_root = package_build_root.format(**os.environ)
+        if package_install_root is None:
+            self.package_install_root = defaults.PACKAGE_INSTALL_ROOT.format(**os.environ)
+        else:
+            self.package_install_root = package_install_root.format(**os.environ)
+        if package_tmp_root is None:
+            self.package_tmp_root = defaults.PACKAGE_TMP_ROOT.format(**os.environ)
+        else:
+            self.package_tmp_root = package_tmp_root.format(**os.environ)
         self.working_dir = working_dir.format(**os.environ)
         self.requirements_path = requirements_path.format(**os.environ)
-        self.python_basedir = python_basedir.format(**os.environ)
+        if python_basedir is None:
+            self.python_basedir = "/".join([defaults.PYTHON_BASEDIR, app]).format(**os.environ)
+        else:
+            self.python_basedir = python_basedir.format(**os.environ)
         self.compile_python = compile_python
-        self.compile_python_version = compile_python_version.format(**os.environ)
+        self.python_version = python_version.format(**os.environ)
         if custom_filename:
             self.custom_filename = custom_filename.format(**os.environ)
         else:
