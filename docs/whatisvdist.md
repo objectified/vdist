@@ -65,6 +65,6 @@ build time (e.g. your Django application might well include all sorts of Python
 modules, but you won't use your Django application as a library).
 
 For more information please refer to our [how to use](howtouse.md) and our
-[use cases](howtouse.md) pages.
+[use cases](usecases.md) pages.
 
 
