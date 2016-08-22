@@ -3,6 +3,7 @@ theme: readthedocs
 pages:
 - [index.md, Home]
 - [whatisvdist.md, What is vdist]
+- [usecases.md, Use Cases]
 - [howtoinstall.md, How to install]
 - [howtouse.md, How to use]
 - [howtocustomize.md, How to customize]
