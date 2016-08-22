@@ -133,7 +133,7 @@ source repository with multiple projects under it.
 - `python_basedir` :: specifies one of two things: 1) where Python can be
 found (your company might have a prepackaged Python already installed on your
 custom docker container) 2) where vdist should install the compiled Python
-distribution on your docker container. Read different [use cases](usecases.md)
+distribution on your docker container. Read vdist's various [use cases](usecases.md)
 to understand the nuance. Defaults to '*/opt*'.
 - `compile_python` :: indicates whether Python should be fetched from
 python.org, compiled and shipped for you; defaults to *True*. If not *True* then
