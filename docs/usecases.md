@@ -15,13 +15,17 @@ are not affected by further updates. To create this bundle of your package and
 its dependencies is where vdist comes to play.
 
 Being aware of that, we have identified 4 main use cases for vdist:
+
 - **Scenario 1** :: Your application includes a *setup.py* to be installed over
 an specific compiled Python version.
+
 - **Scenario 2** :: Your application does not include a *setup.py* but still
 needs an specific compiled Python version.
+
 - **Scenario 3** :: Your application includes a *setup.py* but uses a prebuilt
 Python interpreter (maybe a custom Python package or the *vanilla* Python version
 available in docker container you use for building process).
+
 - **Scenario 4** :: Your application does not include a *setup.py* but uses a
 prebuilt Python interpreter (maybe a custom Python package or the *vanilla*
 Python version available in docker container you use for building process).
