@@ -7,10 +7,10 @@ setup(
                 'projects using Docker containers',
     long_description='Create OS packages from Python '
                      'projects using Docker containers',
-    author='L. Brouwer',
-    author_email='objectified@gmail.com',
+    author='objectified, dante-signal31',
+    author_email='objectified@gmail.com, dante.signal31@gmail.com',
     license='MIT',
-    url='https://github.com/objectified/vdist',
+    url='https://github.com/dante-signal31/vdist',
     packages=find_packages(),
     install_requires=['jinja2==2.7.3'],
     package_data={'': ['internal_profiles.json', '*.sh']},
